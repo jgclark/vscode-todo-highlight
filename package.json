@@ -1,0 +1,244 @@
+{
+	"name": "vscode-todo-highlight",
+	"displayName": "TODO Highlight",
+	"description": "highlight TODOs, FIXMEs, and any keywords, annotations...",
+	"keywords": [
+		"todo",
+		"fixme",
+		"highlight",
+		"keyword",
+		"annotation"
+	],
+	"version": "1.2.0",
+	"publisher": "jgclark",
+	"license": "MIT",
+	"icon": "assets/icon.png",
+	"homepage": "https://github.com/jgclark/vscode-todo-highlight",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/jgclark/vscode-todo-highlight.git"
+	},
+	"bugs": {
+		"url": "https://github.com/jgclark/vscode-todo-highlight/issues"
+	},
+	"galleryBanner": {
+		"color": "#272729",
+		"theme": "dark"
+	},
+	"engines": {
+		"vscode": "^1.5.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+		"*"
+	],
+	"main": "./dist/extension",
+	"extensionKind": [
+		"ui",
+		"workspace"
+	],
+	"scripts": {
+		"vscode:prepublish": "webpack --mode production",
+		"webpack": "webpack --mode development",
+		"webpack-dev": "webpack --mode development --watch",
+		"postinstall": "node ./node_modules/vscode/bin/install"
+	},
+	"badges": [
+		{
+			"url": "https://img.shields.io/badge/License-MIT-brightgreen.svg",
+			"href": "https://opensource.org/licenses/MIT",
+			"description": "License: MIT"
+		},
+		{
+			"url": "https://travis-ci.org/jgclark/vscode-todo-highlight.svg?branch=master",
+			"href": "https://travis-ci.org/jgclark/vscode-todo-highlight",
+			"description": "Build Status"
+		},
+		{
+			"url": "https://vsmarketplacebadge.apphb.com/version-short/jgclark.vscode-todo-highlight.svg",
+			"href": "https://marketplace.visualstudio.com/items?itemName=jgclark.vscode-todo-highlight",
+			"description": "Version"
+		},
+		{
+			"url": "https://vsmarketplacebadge.apphb.com/installs-short/jgclark.vscode-todo-highlight.svg",
+			"href": "https://marketplace.visualstudio.com/items?itemName=jgclark.vscode-todo-highlight",
+			"description": "Installs"
+		},
+		{
+			"url": "https://vsmarketplacebadge.apphb.com/rating-short/jgclark.vscode-todo-highlight.svg",
+			"href": "https://marketplace.visualstudio.com/items?itemName=jgclark.vscode-todo-highlight",
+			"description": "Ratings"
+		}
+	],
+	"contributes": {
+		"commands": [
+			{
+				"title": "Toggle highlight",
+				"category": "TODO-Highlight",
+				"command": "todohighlight.toggleHighlight"
+			},
+			{
+				"title": "List highlighted annotations",
+				"category": "TODO-Highlight",
+				"command": "todohighlight.listAnnotations"
+			}
+		],
+		"configuration": {
+			"type": "object",
+			"title": "TODO Highlight",
+			"properties": {
+				"todohighlight.isEnable": {
+					"type": "boolean",
+					"default": true,
+					"description": "Enable or disable the highlighting"
+				},
+				"todohighlight.isCaseSensitive": {
+					"type": "boolean",
+					"default": true,
+					"description": "Specify whether the keywords are case sensitive or not"
+				},
+				"todohighlight.toggleURI": {
+					"type": "boolean",
+					"default": false,
+					"description": "If the file path within the output channel not clickable, set this to true to toggle the path patten between `<path>#<line>` and `<path>:<line>:<column>`"
+				},
+				"todohighlight.keywords": {
+					"type": "array",
+					"description": "An array of keywords, and their CSS to customise how they look. Any CSS color identifier is valid, plus a few others ...",
+					"items": {
+						"anyOf": [
+							{
+								"type": "string"
+							},
+							{
+								"type": "object",
+								"properties": {
+									"text": {
+										"type": "string",
+										"description": "Custom text to be highlighted"
+									},
+									"color": {
+										"type": "string",
+										"description": "The text color. Besides, you can play with all the string and boolean styling properties provied by VS Code API. See all available properties in [VSCode doc on DecorationRenderOptions](https://code.visualstudio.com/api/references/vscode-api#DecorationRenderOptions) section"
+									},
+									"backgroundColor": {
+										"type": "string",
+										"description": "The text background color. See all available properties in [VSCode doc on DecorationRenderOptions](https://code.visualstudio.com/api/references/vscode-api#DecorationRenderOptions) section"
+									},
+									"overviewRulerColor": {
+										"type": "string",
+										"description": "The color of the ruler mark on the scroll bar. Use rgba() and define transparent colors to play well with other decorations. See all available properties in [VSCode doc on DecorationRenderOptions](https://code.visualstudio.com/api/references/vscode-api#DecorationRenderOptions) section"
+									},
+									"regex": {
+										"pattern": {
+											"type": "string",
+											"description": "The RegEx pattern to use for matching instead of the text value.REMEMBER to escapse the backslash if there's any in your regexp (using \\\\ instead of single backslash)"
+										}
+									},
+									"isWholeLine": {
+										"type": "boolean",
+										"default": false,
+										"description": "if true, then the whole line is highlighted, not just the matching text."
+									}
+								}
+							}
+						]
+					}
+				},
+				"todohighlight.keywordsPattern": {
+					"type": "string",
+					"default": "",
+					"description": "Specify keywords via RegExp instead of `todohighlight.keywords` one by one. NOTE that if this present, `todohighlight.keywords` will be ignored. REMEMBER to escapse the backslash if there's any in your regexp (using \\\\ instead of single backslash)."
+				},
+				"todohighlight.defaultStyle": {
+					"type": "object",
+					"description": "Default style for all customized keywords",
+					"properties": {
+						"color": {
+							"type": "string",
+							"description": "The text color. See all available properties on VSCode doc DecorationRenderOptions section: https://code.visualstudio.com/docs/extensionAPI/vscode-api"
+						},
+						"backgroundColor": {
+							"type": "string",
+							"description": "The text background color. See all available properties on VSCode doc DecorationRenderOptions section: https://code.visualstudio.com/docs/extensionAPI/vscode-api"
+						},
+						"overviewRulerColor": {
+							"type": "string",
+							"description": "The color of the ruler mark on the scroll bar. See all available properties on VSCode doc DecorationRenderOptions section: https://code.visualstudio.com/docs/extensionAPI/vscode-api"
+						}
+					}
+				},
+				"todohighlight.include": {
+					"type": "array",
+					"default": [
+						"**/*.js",
+						"**/*.jsx",
+						"**/*.ts",
+						"**/*.tsx",
+						"**/*.html",
+						"**/*.php",
+						"**/*.css",
+						"**/*.scss"
+					],
+					"description": "Glob patterns that defines the files to search for. Only include files you need, DO NOT USE `{**/*.*}` for both performance and to avoid binary files.",
+					"items": {
+						"anyOf": [
+							{
+								"type": "string",
+								"description": "A glob pattern that defines the files to search for. Only include files you need, DO NOT USE `**/*.*` for both performance and to avoid binary files."
+							}
+						]
+					}
+				},
+				"todohighlight.exclude": {
+					"type": "array",
+					"default": [
+						"**/node_modules/**",
+						"**/bower_components/**",
+						"**/dist/**",
+						"**/build/**",
+						"**/.vscode/**",
+						"**/.github/**",
+						"**/_output/**",
+						"**/*.min.*",
+						"**/*.map",
+						"**/.next/**"
+					],
+					"description": "Glob pattern that defines files and folders to exclude while listing annotations.",
+					"items": {
+						"anyOf": [
+							{
+								"type": "string",
+								"description": "A glob pattern that defines files and folders to exclude while listing annotations"
+							}
+						]
+					}
+				},
+				"todohighlight.maxFilesForSearch": {
+					"type": "number",
+					"default": 5120,
+					"description": "Max files for searching"
+				}
+			}
+		}
+	},
+	"devDependencies": {
+		"@types/mocha": "^2.2.32",
+		"@types/node": "^6.0.40",
+		"eslint": "^3.6.0",
+		"mocha": "^2.3.3",
+		"typescript": "^2.0.3",
+		"vscode": "^1.0.0"
+	},
+	"__metadata": {
+		"id": "97a08c5f-6667-4242-a5c5-045dfb6bd4b9",
+		"publisherDisplayName": "jgclark",
+		"publisherId": "47daa402-5396-4346-b7bd-62494d6d63ec"
+	},
+	"dependencies": {
+		"test": "^0.6.0",
+		"webpack": "^4.43.0"
+	}
+}
