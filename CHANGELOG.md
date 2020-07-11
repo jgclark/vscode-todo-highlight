@@ -1,6 +1,8 @@
 # Change Log
+## 1.2.1 - 2020-07-11
+- added more filetypes to be included by default: .txt, .md, .mmd, .mdown, .markdown, .rb, .go
 
-## 1.2.0
+## 1.2.0 - 2020-07-08
 First release by jgclark forked from wayou's original.
 
 Includes fixes and PRs from [previous repo](https://github.com/wayou/vscode-todo-highlight):

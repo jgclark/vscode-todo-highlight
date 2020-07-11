@@ -92,7 +92,14 @@ An example of a custom configuration, showing a range of the different features:
         "**/*.html",
         "**/*.php",
         "**/*.css",
-        "**/*.scss"
+        "**/*.scss",
+        "**/*.md",
+		"**/*.mmd",
+		"**/*.markdown",
+		"**/*.mdown",
+		"**/*.txt",
+		"**/*.rb",
+		"**/*.go"
     ],
     "todohighlight.exclude": [
         "**/node_modules/**",
@@ -126,6 +133,10 @@ This extension contributes the following commands to the Command palette.
 - `List highlighted annotations` : list annotations and reveal from corresponding file
 ![](https://github.com/wayou/vscode-todo-highlight/raw/master/assets/list-annotations.gif)
 
+### Installing
+You can install the latest version of the [extension from the Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=jgclark.vscode-todo-highlight).
+
+The [source code is available on GitHub](https://github.com/jgclark/vscode-todo-highlight).
 
 ### Known issue
 The clickable file pattern within the output channel differs from OS platform(`<path>#<line>` for Mac/Windows and `<path>:<line>:<column>` for Linux, for details see this [issue](https://github.com/Microsoft/vscode/issues/586) ). 
@@ -136,3 +147,5 @@ If you find that the file path is not clickable, set `todohighlight.toggleURI` t
   
 ### History
 This extension was [started and maintained by **wayou**](https://github.com/wayou/vscode-todo-highlight) until 2018. [**jgclark**](https://github.com/jgclark) then picked it up in mid-2020, using [significant PR #152 from **vonEdfa**](https://github.com/wayou/vscode-todo-highlight/pull/152), and dealt with some other issues in the original repository. See CHANGELOG.md for more details.
+
+<!-- Alternative: [TODO Tree](https://github.com/Gruntfuggly/todo-tree)  -->

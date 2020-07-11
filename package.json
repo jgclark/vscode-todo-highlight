@@ -9,7 +9,7 @@
 		"keyword",
 		"annotation"
 	],
-	"version": "1.2.0",
+	"version": "1.2.1",
 	"publisher": "jgclark",
 	"license": "MIT",
 	"icon": "assets/icon.png",
@@ -178,9 +178,13 @@
 						"**/*.ts",
 						"**/*.tsx",
 						"**/*.html",
-						"**/*.php",
 						"**/*.css",
-						"**/*.scss"
+						"**/*.scss",
+						"**/*.php",
+						"**/*.rb",
+						"**/*.txt",
+						"**/*.mdown",
+						"**/*.md"
 					],
 					"description": "Glob patterns that defines the files to search for. Only include files you need, DO NOT USE `{**/*.*}` for both performance and to avoid binary files.",
 					"items": {
