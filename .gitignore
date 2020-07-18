@@ -5,3 +5,4 @@ HOWTO-publish.md
 node_modules/
 vsc-todo-highlight.code-workspace
 .vsixmanifest
+*.vsix
