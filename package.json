@@ -9,7 +9,7 @@
 		"keyword",
 		"annotation"
 	],
-	"version": "1.2.1",
+	"version": "1.2.2",
 	"publisher": "jgclark",
 	"license": "MIT",
 	"icon": "assets/icon.png",
@@ -234,7 +234,8 @@
 		"eslint": "^3.6.0",
 		"mocha": "^2.3.3",
 		"typescript": "^2.0.3",
-		"vscode": "^1.0.0"
+		"vscode": "^1.0.0",
+		"webpack-cli": "^3.3.12"
 	},
 	"__metadata": {
 		"id": "97a08c5f-6667-4242-a5c5-045dfb6bd4b9",
@@ -243,6 +244,7 @@
 	},
 	"dependencies": {
 		"test": "^0.6.0",
-		"webpack": "^4.43.0"
+		"vsce": "^1.77.0",
+		"webpack": "^4.44.1"
 	}
 }
