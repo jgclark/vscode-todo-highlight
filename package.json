@@ -9,7 +9,7 @@
 		"keyword",
 		"annotation"
 	],
-	"version": "1.2.2",
+	"version": "1.2.3",
 	"publisher": "jgclark",
 	"license": "MIT",
 	"icon": "assets/icon.png",
@@ -106,6 +106,7 @@
 				},
 				"todohighlight.keywords": {
 					"type": "array",
+					"scope": "language-overridable",
 					"description": "An array of keywords, and their CSS to customise how they look. Any CSS color identifier is valid, plus a few others ...",
 					"items": {
 						"anyOf": [
