@@ -55,12 +55,16 @@ An example of a custom configuration, showing a range of the different features:
             "backgroundColor": "yellow",
             "overviewRulerColor": "grey"
             "regex": {
-                "pattern": "(?<=^|\\\\s)NOTE[:]?" // in this example, highlight `NOTE:` with or without the `:` and that's not part of another word.  (I.e.: The above will highlight 'NOTE' but not the "note" in 'SIDENOTE').
+                // "pattern": "(?<=^|\\\\s)NOTE[:]?" // in this example, highlight `NOTE:` with or without the `:` and that's not part of another word.  (I.e.: The above will highlight 'NOTE' but not the "note" in 'SIDENOTE').
+                "pattern": "(?<=^|\"|\\s)NOTE[:]?(?!\\w)" // in this example, highlight `NOTE:` with or without the `:` and that's not part of another word.  (I.e.: The above will highlight 'NOTE' but not the "note" in 'SIDENOTE').
                 /**
-                 * NOTE: remember to escapse the backslash if there's any in your regexp (using \\\\ instead of single backslash)"
                  * Positive lookbehind (`(?<=...)`) is only supported in Node.js v9 and up.
-                 * If your VSCode version is built on an earlier version the example above may not work.
-                 * bynoted byNOTE NOTEing NOTE:
+                 * If your VSCode version is built on an earlier version the example above may not work. Simple tests:
+                 * bynoted 
+                 * byNOTE text
+                 * NOTEing 
+                 * NOTE:text
+                 * NOTE: text
                  **/
             },
             "isWholeLine": false
@@ -74,6 +78,7 @@ An example of a custom configuration, showing a range of the different features:
         },
     ],
     "todohighlight.keywordsPattern": "TODO:|FIXME:|\\\\(([^\\\\)]+)\\\\)", //highlight `TODO:`,`FIXME:` or content between parentheses
+    // NOTE: remember to escapse the backslash if there's any in your regexp (using \\\\ instead of single backslash)"
     "todohighlight.defaultStyle": {
         "color": "red",
         "backgroundColor": "#ffab00",
@@ -139,9 +144,7 @@ You can install the latest version of the [extension from the Visual Studio Mark
 The [source code is available on GitHub](https://github.com/jgclark/vscode-todo-highlight).
 
 ### Known issue
-The clickable file pattern within the output channel differs from OS platform(`<path>#<line>` for Mac/Windows and `<path>:<line>:<column>` for Linux, for details see this [issue](https://github.com/Microsoft/vscode/issues/586) ). 
-
- Basically the extension auto detects the OS platform.
+_Carried over from version 1 of this extension_: The clickable file pattern within the output channel differs from OS platform(`<path>#<line>` for Mac/Windows and `<path>:<line>:<column>` for Linux, for details see this [issue](https://github.com/Microsoft/vscode/issues/586) ).  Basically the extension auto detects the OS platform.
 
 If you find that the file path is not clickable, set `todohighlight.toggleURI` to `true` to toggle the file pattern.
   

@@ -1,9 +1,13 @@
 # Change Log
+
+## 1.2.2 - 2020-07-31
+- updated regex in NOTE: example in the README (issue 3)
+
 ## 1.2.1 - 2020-07-11
 - added more filetypes to be included by default: .txt, .md, .mmd, .mdown, .markdown, .rb, .go
 
 ## 1.2.0 - 2020-07-08
-First release by jgclark forked from wayou's original.
+First release by @jgclark forked from @wayou's original.
 
 Includes fixes and PRs from [previous repo](https://github.com/wayou/vscode-todo-highlight):
 - add Regex ability by merging (PR #152 by vonEdfa, issue #144 is similar)
