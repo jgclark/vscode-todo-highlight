@@ -243,6 +243,7 @@
 		"publisherId": "47daa402-5396-4346-b7bd-62494d6d63ec"
 	},
 	"dependencies": {
+		"neo-async": "^2.6.2",
 		"test": "^0.6.0",
 		"vsce": "^1.77.0",
 		"webpack": "^4.44.1"
