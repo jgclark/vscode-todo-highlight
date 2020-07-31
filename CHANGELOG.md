@@ -1,4 +1,6 @@
 # Change Log
+## 1.2.3 - 2020-08-01
+- updated exported configuration to allow per-language `keyword` settings
 
 ## 1.2.2 - 2020-07-31
 - updated regex in NOTE: example in the README (issue 3)
