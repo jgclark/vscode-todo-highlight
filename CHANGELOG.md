@@ -1,5 +1,6 @@
 # Change Log
-## 1.2.3 - 2020-08-01
+## 1.2.3 - 2020-09-19
+- improve documentation, including the worked example so that TODO (without the colon) and FIXME work out of the gate. (issue 8)
 - updated exported configuration to allow per-language `keyword` settings
 
 ## 1.2.2 - 2020-07-31
