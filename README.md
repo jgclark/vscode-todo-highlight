@@ -23,7 +23,7 @@ To customize the keywords and other settings, <kbd>command</kbd> + <kbd>,</kbd> 
 | todohighlight.isEnable          | boolean | true                                                                                                                                                                                                         | Toggle the highlight, default is true.                                                                                                                                                                                                                                                                                                                                                           |
 | todohighlight.isCaseSensitive   | boolean | true                                                                                                                                                                                                         | Whether the keywords are case sensitive or not.                                                                                                                                                                                                                                                                                                                                                  |
 | todohighlight.keywords          | array   | N/A                                                                                                                                                                                                          | An array of keywords that will be highlighted. You can also specify the style for each keywords here. See example below for more information.                                                                                                                                                                                                                                                    |
-| todohighlight.keywordsPattern   | string  | N/A                                                                                                                                                                                                          | Specify keywords via RegEx instead of `todohighlight.keywords` one by one. NB: if this is present, `todohighlight.keywords` will be ignored. Remember to escape the backslash if there's any in your regex (using \\ (double backslash) instead of single backslash).                                                                                                                                       |
+| todohighlight.keywordsPattern   | string  | N/A                                                                                                                                                                                                          | Specify keywords via RegEx instead of `todohighlight.keywords` one by one. NB: if this is present, `todohighlight.keywords` will be ignored. Remember to escape the backslash if there's any in your regex (using \\ (double backslash) instead of single backslash).                                                                                                                            |
 | todohighlight.defaultStyle      | object  | N/A                                                                                                                                                                                                          | Specify the default style for custom keywords, if not specified, build in default style will be applied. [See all available properties on VSCode doc DecorationRenderOptions section](https://code.visualstudio.com/docs/extensionAPI/vscode-api)                                                                                                                                                |
 | todohighlight.include           | array   | [<br>`"**/*.js"`,<br>`"**/*.jsx"`,<br>`"**/*.ts"`,<br>`"**/*.tsx",`<br>`"**/*.html"`,<br>`"**/*.php"`,<br>`"**/*.css",`<br>`"**/*.scss"`<br>]                                                                | Glob patterns that defines the files to search for. **Please add other file types you need,** but for performance reasons and to avoid binary files do **not** use `{**/*.*}`. <br> Note that explicitly specifying `include` patterns will override the default settings, so if you want to add new patterns, and also use the defaults, you will need to include the default patterns as well. |
 | todohighlight.exclude           | array   | [<br>`"**/node_modules/**"`,<br>`"**/dist/**",`<br>`"**/bower_components/**"`,<br>`"**/build/**",`<br>`"**/.vscode/**"`,<br>`"**/.github/**"`,<br>`"**/_output/**"`,<br>`"**/*.min.*"`,<br>`"**/*.map"`<br>] | Glob pattern that defines files and folders to exclude while listing annotations. <br> Note that explicitly specifying `include` patterns will override the default settings, so if you want to add new patterns, and also use the defaults, you will need to include the default patterns as well.                                                                                              |
@@ -32,7 +32,7 @@ To customize the keywords and other settings, <kbd>command</kbd> + <kbd>,</kbd> 
 
 An example of a custom configuration, showing a range of the different features:
 
-```js
+```json
 {
     "todohighlight.isEnable": true,
     "todohighlight.isCaseSensitive": true,
@@ -56,16 +56,12 @@ An example of a custom configuration, showing a range of the different features:
             "backgroundColor": "yellow",
             "overviewRulerColor": "grey"
             "regex": {
-                // "pattern": "(?<=^|\\\\s)NOTE[:]?" // in this example, highlight `NOTE:` with or without the `:` and that's not part of another word.  (I.e.: The above will highlight 'NOTE' but not the "note" in 'SIDENOTE').
                 "pattern": "(?<=^|\"|\\s)NOTE[:]?(?!\\w)" // in this example, highlight `NOTE:` with or without the `:` and that's not part of another word.  (I.e.: The above will highlight 'NOTE' but not the "note" in 'SIDENOTE').
                 /**
                  * Positive lookbehind (`(?<=...)`) is only supported in Node.js v9 and up.
                  * If your VSCode version is built on an earlier version the example above may not work. Simple tests:
-                 * bynoted 
-                 * byNOTE text
-                 * NOTEing 
-                 * NOTE:text
-                 * NOTE: text
+						* Shouldm't work: note  deNOTEd  NOTEing
+						* Should work: NOTE:  "NOTE:"
                  **/
             },
             "isWholeLine": false
@@ -78,7 +74,7 @@ An example of a custom configuration, showing a range of the different features:
             "isWholeLine": false
         },
     ],
-    "todohighlight.keywordsPattern": "TODO:|FIXME:|\\\\(([^\\\\)]+)\\\\)", //highlight `TODO:`,`FIXME:` or content between parentheses
+    "todohighlight.keywordsPattern": "TODO:|FIXME:|\\(([^\\)]+)\\)", //highlight `TODO:`,`FIXME:` or content between parentheses
     // NOTE: remember to escapse the backslash if there's any in your regexp (using \\\\ instead of single backslash)"
     "todohighlight.defaultStyle": {
         "color": "red",
@@ -122,6 +118,20 @@ An example of a custom configuration, showing a range of the different features:
     "todohighlight.maxFilesForSearch": 5120,
     "todohighlight.toggleURI": false
 }
+```
+NB: The `keywords` setting can be overridden in per-language configuration settings. In this example, an additional  keyword is added for markdown files:
+	"[markdown]": {
+		"todohighlight.keywords": [
+			{
+				"text": "BRACKETS:",
+				"color": "#000000",
+				"backgroundColor": "pink",
+				"regex": { 
+					"pattern": "(?<=\\{)[^\\}\\n]+(?=\\})" // highlight things in {ss} but not including line breaks
+				}
+			}
+		]
+	},
 ```
 
 ### CSS tips
