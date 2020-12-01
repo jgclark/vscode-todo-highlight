@@ -119,7 +119,10 @@ An example of a custom configuration, showing a range of the different features:
     "todohighlight.toggleURI": false
 }
 ```
+
 NB: The `keywords` setting can be overridden in per-language configuration settings. In this example, an additional  keyword is added for markdown files:
+
+```
 	"[markdown]": {
 		"todohighlight.keywords": [
 			{
