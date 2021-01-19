@@ -2,9 +2,11 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-brightgreen.svg)](https://opensource.org/licenses/MIT) [![Version](https://vsmarketplacebadge.apphb.com/version-short/jgclark.vscode-todo-highlight.svg)](https://marketplace.visualstudio.com/items?itemName=jgclark.vscode-todo-highlight) [![Installs](https://vsmarketplacebadge.apphb.com/installs-short/jgclark.vscode-todo-highlight.svg)](https://marketplace.visualstudio.com/items?itemName=jgclark.vscode-todo-highlight) [![Ratings](https://vsmarketplacebadge.apphb.com/rating-short/jgclark.vscode-todo-highlight.svg)](https://marketplace.visualstudio.com/items?itemName=jgclark.vscode-todo-highlight)
 
-Highlight `TODO:`, `FIXME:` and other annotations you wish within your code.
+Highlight `TODO:`, `FIXME:` and any other annotations you wish within your code.
 
 Sometimes you forget to review the TODOs and NOTEs you've added while coding before you publish the code to production. This extension highlights them, making them harder to forget.
+
+> NB: This extension was [started and maintained by **wayou**](https://github.com/wayou/vscode-todo-highlight) until 2018, when it was abandoned. I, ([**jgclark**](https://github.com/jgclark)) then picked it up in mid-2020, using the [significant PR #152 from **vonEdfa**](https://github.com/wayou/vscode-todo-highlight/pull/152), and also dealt with some other issues in the original repository. See CHANGELOG.md for more details. However, I'm not a JavaScript programmer, so I welcome PRs from others to help improve it further. Thanks!
 
 ### Preview
 - with `material night` color theme:
@@ -119,10 +121,7 @@ An example of a custom configuration, showing a range of the different features:
     "todohighlight.toggleURI": false
 }
 ```
-
 NB: The `keywords` setting can be overridden in per-language configuration settings. In this example, an additional  keyword is added for markdown files:
-
-```
 	"[markdown]": {
 		"todohighlight.keywords": [
 			{
