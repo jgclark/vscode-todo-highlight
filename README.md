@@ -4,7 +4,7 @@
 
 Highlight `TODO:`, `FIXME:` and any other annotations you wish within your code.
 
-Sometimes you forget to review the TODOs and NOTEs you've added while coding before you publish the code to production. This extension highlights them, making them harder to forget.
+Sometimes you forget to review the TODOs and NOTEs you've added while coding before you publish the code to production. This extension highlights them, making them harder to forget. They're shown in the file, in the output channel, and optionally as decorations in the  'overview ruler' too.
 
 > NB: This extension was [started and maintained by **wayou**](https://github.com/wayou/vscode-todo-highlight) until 2018, when it was abandoned. I, ([**jgclark**](https://github.com/jgclark)) then picked it up in mid-2020, using the [significant PR #152 from **vonEdfa**](https://github.com/wayou/vscode-todo-highlight/pull/152), and also dealt with some other issues in the original repository. See CHANGELOG.md for more details. However, I'm not a JavaScript programmer, so I welcome PRs from others to help improve it further. Thanks!
 
@@ -122,6 +122,7 @@ An example of a custom configuration, showing a range of the different features:
 }
 ```
 NB: The `keywords` setting can be overridden in per-language configuration settings. In this example, an additional  keyword is added for markdown files:
+```
 	"[markdown]": {
 		"todohighlight.keywords": [
 			{
@@ -133,7 +134,7 @@ NB: The `keywords` setting can be overridden in per-language configuration setti
 				}
 			}
 		]
-	},
+	}
 ```
 
 ### CSS tips
@@ -155,13 +156,6 @@ This extension contributes the following commands to the Command palette.
 You can install the latest version of the [extension from the Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=jgclark.vscode-todo-highlight).
 
 The [source code is available on GitHub](https://github.com/jgclark/vscode-todo-highlight).
-
-### Known issue
-_Carried over from version 1 of this extension_: The clickable file pattern within the output channel differs from OS platform(`<path>#<line>` for Mac/Windows and `<path>:<line>:<column>` for Linux, for details see this [issue](https://github.com/Microsoft/vscode/issues/586) ).  Basically the extension auto detects the OS platform.
-
-If you find that the file path is not clickable, set `todohighlight.toggleURI` to `true` to toggle the file pattern.
-  
+ 
 ### History
 This extension was [started and maintained by **wayou**](https://github.com/wayou/vscode-todo-highlight) until 2018. [**jgclark**](https://github.com/jgclark) then picked it up in mid-2020, using [significant PR #152 from **vonEdfa**](https://github.com/wayou/vscode-todo-highlight/pull/152), and dealt with some other issues in the original repository. See CHANGELOG.md for more details.
-
-<!-- Alternative: [TODO Tree](https://github.com/Gruntfuggly/todo-tree)  -->
