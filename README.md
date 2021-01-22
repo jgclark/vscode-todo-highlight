@@ -15,6 +15,19 @@ Sometimes you forget to review the TODOs and NOTEs you've added while coding bef
 - with `material night eighties` color theme:
 ![](https://github.com/wayou/vscode-todo-highlight/raw/master/assets/material-night-eighties.png)
 
+### Commands
+This extension contributes the following commands to the Command palette.
+
+- `Toggle highlight` : turn on/off the highlight
+![](https://github.com/wayou/vscode-todo-highlight/raw/master/assets/toggle-highlight.gif)
+- `List highlighted annotations` : list annotations and reveal from corresponding file
+![](https://github.com/wayou/vscode-todo-highlight/raw/master/assets/list-annotations.gif)
+
+### Installing
+You can install the latest version of the [extension from the Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=jgclark.vscode-todo-highlight).
+
+The [source code is available on GitHub](https://github.com/jgclark/vscode-todo-highlight).
+ 
 ### Config
 `TODO:`,`FIXME:` are built-in keywords. You can override the look by customizing the settings.
 
@@ -144,18 +157,5 @@ The following may not be so obvious:
 - `"backgroundColor": "rgba(0,0,0,0)"` // setting the last parameter to zero (alpha channel) disables the background colour
 - use `"before": "contentText": "⚠️"` to add text before the highlight. (NB: this isn't quite valid CSS.)
 
-### Commands
-This extension contributes the following commands to the Command palette.
-
-- `Toggle highlight` : turn on/off the highlight
-![](https://github.com/wayou/vscode-todo-highlight/raw/master/assets/toggle-highlight.gif)
-- `List highlighted annotations` : list annotations and reveal from corresponding file
-![](https://github.com/wayou/vscode-todo-highlight/raw/master/assets/list-annotations.gif)
-
-### Installing
-You can install the latest version of the [extension from the Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=jgclark.vscode-todo-highlight).
-
-The [source code is available on GitHub](https://github.com/jgclark/vscode-todo-highlight).
- 
 ### History
 This extension was [started and maintained by **wayou**](https://github.com/wayou/vscode-todo-highlight) until 2018. [**jgclark**](https://github.com/jgclark) then picked it up in mid-2020, using [significant PR #152 from **vonEdfa**](https://github.com/wayou/vscode-todo-highlight/pull/152), and dealt with some other issues in the original repository. See CHANGELOG.md for more details.
