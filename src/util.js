@@ -193,6 +193,7 @@ function showOutputChannel(data) {
 
     var settings = workspace.getConfiguration('todohighlight');
     var toggleURI = settings.get('toggleURI', false);
+    var platform = os.platform();
 
     data.forEach(function (v, i) {
         // due to an issue of vscode(https://github.com/Microsoft/vscode/issues/586), in order to make file path clickable within the output channel,the file path differs from platform
@@ -200,10 +201,10 @@ function showOutputChannel(data) {
         var patternB = '#' + (i + 1) + '\t' + v.uri + ':' + (v.lineNum + 1) + ':' + (v.startCol + 1);
         var patterns = [patternA, patternB];
 
-        //for windows and mac
+        //for windows
         var patternType = 0;
-        if (os.platform() == "linux") {
-            // for linux
+        if (platform == "linux" || platform == "darwin") {
+            // for linux & mac
             patternType = 1;
         }
         if (toggleURI) {
