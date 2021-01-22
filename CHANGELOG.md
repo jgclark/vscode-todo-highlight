@@ -1,4 +1,6 @@
 # Change Log
+## 1.2.4 - 2021-01-21
+- hopefully a fix to allow file links in the Output area to work on Mac (thanks to @Zerefdev)
 
 ## 1.2.3 - 2021-01-19
 - moved the history note to the top of the README to help others see why this is different than the similarly-named, but now abandoned, original extension. (Thanks to Sebastian Werner.)
