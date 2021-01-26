@@ -1,4 +1,7 @@
 # Change Log
+## 1.2.5 - 2021-01-26
+- add `isWholeLine` to definition of `defaultStyle` in configuration (thanks to @ctf0 for reporting)
+
 ## 1.2.4 - 2021-01-21
 - hopefully a fix to allow file links in the Output area to work on Mac (thanks to @Zerefdev)
 
