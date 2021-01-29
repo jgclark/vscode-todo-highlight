@@ -1,4 +1,7 @@
 # Change Log
+## 2.0.0 - 2021-01-27
+- no feature changes, but now renamed to v2 to make it clearer in the VSCode Extension Marketplace. Thanks to Sebastian Werner for the suggestion, which I probably should have done as soon as I took it over.
+
 ## 1.2.5 - 2021-01-26
 - add `isWholeLine` to definition of `defaultStyle` in configuration (thanks to @ctf0 for reporting)
 

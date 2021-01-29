@@ -1,6 +1,6 @@
 {
 	"name": "vscode-todo-highlight",
-	"displayName": "TODO Highlight",
+	"displayName": "TODO Highlight v2",
 	"description": "highlight TODOs, FIXMEs, and any keywords, annotations...",
 	"keywords": [
 		"todo",
@@ -9,7 +9,7 @@
 		"keyword",
 		"annotation"
 	],
-	"version": "1.2.5",
+	"version": "2.0.0",
 	"publisher": "jgclark",
 	"license": "MIT",
 	"icon": "assets/icon.png",
