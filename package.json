@@ -9,7 +9,7 @@
 		"keyword",
 		"annotation"
 	],
-	"version": "2.0.0",
+	"version": "2.0.1",
 	"publisher": "jgclark",
 	"license": "MIT",
 	"icon": "assets/icon.png",
@@ -177,6 +177,7 @@
 					}
 				},
 				"todohighlight.include": {
+					"description": "Glob patterns that defines the files to search for. Only include files you need, DO NOT USE `{**/*.*}` for both performance and to avoid binary files.",
 					"type": "array",
 					"default": [
 						"**/*.js",
@@ -192,17 +193,13 @@
 						"**/*.mdown",
 						"**/*.md"
 					],
-					"description": "Glob patterns that defines the files to search for. Only include files you need, DO NOT USE `{**/*.*}` for both performance and to avoid binary files.",
 					"items": {
-						"anyOf": [
-							{
-								"type": "string",
-								"description": "A glob pattern that defines the files to search for. Only include files you need, DO NOT USE `**/*.*` for both performance and to avoid binary files."
-							}
-						]
-					}
+						"type": "string"
+					},
+					"scope": "resource"
 				},
 				"todohighlight.exclude": {
+					"description": "Glob pattern that defines files and folders to exclude while listing annotations.",
 					"type": "array",
 					"default": [
 						"**/node_modules/**",
@@ -216,15 +213,10 @@
 						"**/*.map",
 						"**/.next/**"
 					],
-					"description": "Glob pattern that defines files and folders to exclude while listing annotations.",
 					"items": {
-						"anyOf": [
-							{
-								"type": "string",
-								"description": "A glob pattern that defines files and folders to exclude while listing annotations"
-							}
-						]
-					}
+						"type": "string"
+					},
+					"scope": "resource"
 				},
 				"todohighlight.maxFilesForSearch": {
 					"type": "number",

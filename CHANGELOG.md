@@ -1,4 +1,7 @@
 # Change Log
+## 2.0.1 - 2021-02-07
+- no feature changes, but found a way to include the `exclude` and `include` settings in the settings UI, not just the JSON version.
+
 ## 2.0.0 - 2021-01-27
 - no feature changes, but now renamed to v2 to make it clearer in the VSCode Extension Marketplace. Thanks to Sebastian Werner for the suggestion, which I probably should have done as soon as I took it over.
 
