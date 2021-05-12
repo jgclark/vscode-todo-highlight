@@ -207,6 +207,7 @@
 						"**/dist/**",
 						"**/build/**",
 						"**/.vscode/**",
+						"**/.vscode-test/**",
 						"**/.github/**",
 						"**/_output/**",
 						"**/*.min.*",
