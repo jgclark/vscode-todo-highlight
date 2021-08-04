@@ -135,7 +135,7 @@
 									"regex": {
 										"pattern": {
 											"type": "string",
-											"description": "The RegEx pattern to use for matching instead of the text value.REMEMBER to escapse the backslash if there's any in your regexp (using \\\\ instead of single backslash)"
+											"description": "The RegEx pattern to use for matching instead of the text value.REMEMBER to escape the backslash if there's any in your regexp (using \\\\ instead of single backslash)"
 										}
 									},
 									"isWholeLine": {
