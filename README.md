@@ -91,7 +91,7 @@ An example of a custom configuration, showing a range of the different features:
         },
     ],
     "todohighlight.keywordsPattern": "TODO:|FIXME:|\\(([^\\)]+)\\)", //highlight `TODO:`,`FIXME:` or content between parentheses
-    // NOTE: remember to escapse the backslash if there's any in your regexp (using \\\\ instead of single backslash)"
+    // NOTE: remember to escape the backslash if there's any in your regexp (using \\\\ instead of single backslash)"
     "todohighlight.defaultStyle": {
         "color": "red",
         "backgroundColor": "#ffab00",
