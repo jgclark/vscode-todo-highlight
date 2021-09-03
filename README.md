@@ -4,7 +4,9 @@
 
 **Highlight `TODO:`, `FIXME:` and any other annotations you wish within your code in VSCode.**
 
-**Sometimes you forget to review the TODOs and NOTEs you've added while coding before you publish the code to production. This extension highlights them, making them harder to forget. They're shown in the file, in the output channel, and optionally as decorations in the  'overview ruler' too.**
+Sometimes you forget to review the TODOs and NOTEs you've added while coding before you publish the code to production. This extension highlights them, making them harder to forget. They're shown in the file, in the output channel, and optionally as decorations in the 'overview ruler' too.
+
+They can also be set on a per-language basis.
 
 > NB: This extension was [started and maintained by **wayou**](https://github.com/wayou/vscode-todo-highlight) until 2018, when it was abandoned. 
 > I, ([**jgclark**](https://github.com/jgclark)) then picked it up in mid-2020, using the [significant PR from **vonEdfa** to add regexes](https://github.com/wayou/vscode-todo-highlight/pull/152), and also dealt with some other issues in the original repository. See CHANGELOG.md for more details. However, I'm not really a JavaScript programmer, so I welcome PRs from others to help improve it further. Thanks!
@@ -29,10 +31,10 @@ You can install the latest version of the [extension from the Visual Studio Mark
 
 The [source code is available on GitHub](https://github.com/jgclark/vscode-todo-highlight).
  
-### Config
-`TODO:`,`FIXME:` are built-in keywords. You can override the look by customizing the settings.
+### Configuration
+`TODO:` and `FIXME:` are built-in keywords. You can override the look by customizing the settings.
 
-To customize the keywords and other settings, <kbd>command</kbd> + <kbd>,</kbd> (or on Windows / Linux: File -> Preferences -> User Settings) to open the vscode file `settings.json`.
+To customize the keywords and other settings, <kbd>command</kbd> + <kbd>,</kbd> (or on Windows / Linux: File -> Preferences -> User Settings) to open the VSCode file `settings.json`.
 
 |                                 | type    | default                                                                                                                                                                                                      | description                                                                                                                                                                                                                                                                                                                                                                                      |
 | ------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -57,17 +59,37 @@ An example of a custom configuration, showing a range of the different features:
         "REVIEW:", // as will this
         // now for a more complex example
         {
-            "text": "TODO:",
+            "text": "INFO:", // without a defined regex pattern this is the string that will be matched
+            "color": "green",
+            "backgroundColor": "rgba(0,0,0,0)", // INFO: setting the last parameter to zero (alpha channel) disables the background colour
+            "border": "none",
+            "isWholeLine": false
+        },
+        {
+            "text": "WARNING:", 
             "before": {
-				"contentText": "⚠️" // can add text before or after the highlight
+				"contentText": "⚠️" // adds text before the highlight
+			},
+            "after": {
+				"contentText": "⚠️" // adds text after the highlight
 			},
             "color": "red",
             "border": "1px solid red",
-            "borderRadius": "2px", //NOTE: using borderRadius along with `border` or you will see nothing change
+            "borderRadius": "2px", // NOTE: use borderRadius along with `border` or you will see nothing change
             "backgroundColor": "rgba(0,0,0,.2)"
         },
         {
-            "text": "NOTE:", // this is further refined by the regex pattern below
+            "text": "TODO(string):", // with a regex pattern defined, this setting isn't used, but is useful as a name for this section
+            "regex": {
+                "pattern": "(?<=^|\"|\\s)TODO(\\(\\w+\\))?:" // this allows for TODO: or TODO(Bob): etc.
+            },
+            "color": "red",
+            "border": "1px solid red",
+            "borderRadius": "2px", //NOTE: use borderRadius along with `border` or you will see nothing change
+            "backgroundColor": "rgba(0,0,0,.2)"
+        },
+        {
+            "text": "NOTE:", // with a regex pattern defined, this setting isn't used, but is useful as a name for this section
             "color": "#ff0000",
             "backgroundColor": "yellow",
             "overviewRulerColor": "grey"
@@ -80,13 +102,6 @@ An example of a custom configuration, showing a range of the different features:
 						* Should work: NOTE:  "NOTE:"
                  **/
             },
-            "isWholeLine": false
-        },
-        {
-            "text": "INFO:",
-            "color": "green",
-            "backgroundColor": "rgba(0,0,0,0)", // INFO: setting the last parameter to zero (alpha channel) disables the background colour
-            "border": "none",
             "isWholeLine": false
         },
     ],
@@ -152,11 +167,11 @@ NB: The `keywords` setting can be overridden in per-language configuration setti
 ```
 
 ### CSS tips
-This extension uses CSS that deals with color, borders, spacing etc. (for more details see [this VSCode documentation](https://code.visualstudio.com/api/references/vscode-api#DecorationRenderOptions)).
+This extension uses CSS that deals with color, borders, spacing etc. It is defined in [this VSCode documentation](https://code.visualstudio.com/api/references/vscode-api#DecorationRenderOptions)).  Note that this is not the exactly same as CSS.
 
-The following may not be so obvious:
+For example, the following possibilities may not be so obvious:
 - `"backgroundColor": "rgba(0,0,0,0)"` // setting the last parameter to zero (alpha channel) disables the background colour
-- use `"before": "contentText": "⚠️"` to add text before the highlight. (NB: this isn't quite valid CSS.)
+- use `"before": { "contentText": "⚠️" }` to add text before the highlight
 
 ### History
 This extension was [started and maintained by **wayou**](https://github.com/wayou/vscode-todo-highlight) until 2018. [**jgclark**](https://github.com/jgclark) then picked it up in mid-2020, using [significant PR #152 from **vonEdfa**](https://github.com/wayou/vscode-todo-highlight/pull/152), and dealt with some other issues in the original repository. See CHANGELOG.md for more details.
