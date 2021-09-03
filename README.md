@@ -23,7 +23,7 @@ This extension contributes the following commands to the Command palette.
 
 - `Toggle highlight` : turn on/off the highlight
 ![](https://github.com/wayou/vscode-todo-highlight/raw/master/assets/toggle-highlight.gif)
-- `List highlighted annotations` : list annotations and reveal from corresponding file
+- `List highlighted annotations` : list annotations to the Output tab (when you have a folder and/or workspace open; when you are working on individual files in one or more editors, the command returns 0 results).
 ![](https://github.com/wayou/vscode-todo-highlight/raw/master/assets/list-annotations.gif)
 
 ### Installing
@@ -69,7 +69,7 @@ An example of a custom configuration, showing a range of the different features:
             "text": "WARNING:", 
             "before": {
 				"contentText": "⚠️" // adds text before the highlight
-			},
+			}, 
             "after": {
 				"contentText": "⚠️" // adds text after the highlight
 			},
