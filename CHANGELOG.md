@@ -1,4 +1,14 @@
 # Change Log
+## 2.0.4 - 2021-09-04
+- no feature changes, but improved documentation and , thanks to various recent suggestions via GitHub issues.
+- added some missing auto-completions when working in VSCode's JSON settings
+
+## 2.0.3 - 2021-07-09
+- no feature changes, but updated dependencies to remove security vulnerabilities (thanks to dependabot).
+
+## 2.0.2 - 2021-05-12
+- no feature changes, but updated dependencies to remove security vulnerabilities (thanks to dependabot).
+
 ## 2.0.1 - 2021-02-07
 - no feature changes, but found a way to include the `exclude` and `include` settings in the settings UI, not just the JSON version.
 

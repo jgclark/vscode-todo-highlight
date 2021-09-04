@@ -140,6 +140,7 @@ An example of a custom configuration, showing a range of the different features:
         "**/dist/**",
         "**/build/**",
         "**/.vscode/**",
+        "**/.vscode-test/**",
         "**/.github/**",
         "**/_output/**",
         "**/*.min.*",
