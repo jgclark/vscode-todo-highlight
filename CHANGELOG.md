@@ -1,6 +1,7 @@
 # Change Log
+To update to the latest version, please use VSCode's own Extensions user interface.
 ## 2.0.4 - 2021-09-04
-- no feature changes, but improved documentation and , thanks to various recent suggestions via GitHub issues.
+- no feature changes, but improved documentation, thanks to various recent questions and suggestions via GitHub issues.
 - added some missing auto-completions when working in VSCode's JSON settings
 
 ## 2.0.3 - 2021-07-09
