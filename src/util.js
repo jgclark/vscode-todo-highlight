@@ -187,7 +187,7 @@ function showOutputChannel(data) {
     window.outputChannel.clear();
 
     if (data.length === 0) {
-        window.showInformationMessage('No results');
+        window.showInformationMessage('No results. (Not included file types and individual files are not searched.)');
         return;
     }
 
