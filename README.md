@@ -92,7 +92,7 @@ An example of a custom configuration, showing a range of the different features:
             "text": "NOTE:", // with a regex pattern defined, this setting isn't used, but is useful as a name for this section
             "color": "#ff0000",
             "backgroundColor": "yellow",
-            "overviewRulerColor": "grey"
+            "overviewRulerColor": "grey",
             "regex": {
                 "pattern": "(?<=^|\"|\\s)NOTE[:]?(?!\\w)" // in this example, highlight `NOTE:` with or without the `:` and that's not part of another word.  (I.e.: The above will highlight 'NOTE' but not the "note" in 'SIDENOTE').
                 /**
