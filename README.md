@@ -68,11 +68,11 @@ An example of a custom configuration, showing a range of the different features:
         {
             "text": "WARNING:", 
             "before": {
-				"contentText": "⚠️" // adds text before the highlight
-			}, 
+                "contentText": "⚠️" // adds text before the highlight
+            }, 
             "after": {
-				"contentText": "⚠️" // adds text after the highlight
-			},
+                "contentText": "⚠️" // adds text after the highlight
+            },
             "color": "red",
             "border": "1px solid red",
             "borderRadius": "2px", // NOTE: use borderRadius along with `border` or you will see nothing change
@@ -92,14 +92,14 @@ An example of a custom configuration, showing a range of the different features:
             "text": "NOTE:", // with a regex pattern defined, this setting isn't used, but is useful as a name for this section
             "color": "#ff0000",
             "backgroundColor": "yellow",
-            "overviewRulerColor": "grey"
+            "overviewRulerColor": "grey",
             "regex": {
                 "pattern": "(?<=^|\"|\\s)NOTE[:]?(?!\\w)" // in this example, highlight `NOTE:` with or without the `:` and that's not part of another word.  (I.e.: The above will highlight 'NOTE' but not the "note" in 'SIDENOTE').
                 /**
                  * Positive lookbehind (`(?<=...)`) is only supported in Node.js v9 and up.
                  * If your VSCode version is built on an earlier version the example above may not work. Simple tests:
-						* Shouldm't work: note  deNOTEd  NOTEing
-						* Should work: NOTE:  "NOTE:"
+                        * Shouldm't work: note  deNOTEd  NOTEing
+                        * Should work: NOTE:  "NOTE:"
                  **/
             },
             "isWholeLine": false
@@ -127,12 +127,12 @@ An example of a custom configuration, showing a range of the different features:
         "**/*.css",
         "**/*.scss",
         "**/*.md",
-		"**/*.mmd",
-		"**/*.markdown",
-		"**/*.mdown",
-		"**/*.txt",
-		"**/*.rb",
-		"**/*.go"
+        "**/*.mmd",
+        "**/*.markdown",
+        "**/*.mdown",
+        "**/*.txt",
+        "**/*.rb",
+        "**/*.go"
     ],
     "todohighlight.exclude": [
         "**/node_modules/**",
@@ -153,18 +153,18 @@ An example of a custom configuration, showing a range of the different features:
 ```
 NB: The `keywords` setting can be overridden in per-language configuration settings. In this example, an additional  keyword is added for markdown files:
 ```jsonc
-	"[markdown]": {
-		"todohighlight.keywords": [
-			{
-				"text": "BRACKETS:",
-				"color": "#000000",
-				"backgroundColor": "pink",
-				"regex": { 
-					"pattern": "(?<=\\{)[^\\}\\n]+(?=\\})" // highlight things in {ss} but not including line breaks
-				}
-			}
-		]
-	}
+    "[markdown]": {
+        "todohighlight.keywords": [
+            {
+                "text": "BRACKETS:",
+                "color": "#000000",
+                "backgroundColor": "pink",
+                "regex": { 
+                    "pattern": "(?<=\\{)[^\\}\\n]+(?=\\})" // highlight things in {ss} but not including line breaks
+                }
+            }
+        ]
+    }
 ```
 
 ### CSS tips
