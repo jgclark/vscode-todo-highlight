@@ -9,7 +9,7 @@
 		"keyword",
 		"annotation"
 	],
-	"version": "2.0.4",
+	"version": "2.0.5",
 	"publisher": "jgclark",
 	"license": "MIT",
 	"icon": "assets/icon.png",
@@ -102,12 +102,12 @@
 				"todohighlight.toggleURI": {
 					"type": "boolean",
 					"default": false,
-					"description": "If the file path within the output channel not clickable, set this to true to toggle the path patten between `<path>#<line>` and `<path>:<line>:<column>`"
+					"description": "If the file path within the output channel is not clickable, set this to true to toggle the path patten between `<path>#<line>` and `<path>:<line>:<column>`"
 				},
 				"todohighlight.keywords": {
 					"type": "array",
 					"scope": "language-overridable",
-					"description": "An array of keywords, and their CSS to customise how they look. Any CSS color identifier is valid, plus a few others ...",
+					"markdownDescription": "An array of keywords, and their CSS to customise how they look. Further options can be found [here](https://code.visualstudio.com/api/references/vscode-api#DecorationRenderOptions).",
 					"items": {
 						"anyOf": [
 							{
@@ -122,11 +122,31 @@
 									},
 									"color": {
 										"type": "string",
-										"markdownDescription": "The text color. Besides, you can play with all the string and boolean styling properties provied by VS Code API. See all available properties in [VSCode doc on DecorationRenderOptions](https://code.visualstudio.com/api/references/vscode-api#DecorationRenderOptions) section"
+										"markdownDescription": "The text color. See all available properties in [VSCode doc on DecorationRenderOptions](https://code.visualstudio.com/api/references/vscode-api#DecorationRenderOptions) section"
 									},
 									"backgroundColor": {
 										"type": "string",
 										"markdownDescription": "The text background color. See all available properties in [VSCode doc on DecorationRenderOptions](https://code.visualstudio.com/api/references/vscode-api#DecorationRenderOptions) section"
+									},
+									"border": {
+										"type": "string",
+										"markdownDescription": "The border style for the highlight, as a CSS string. See all available properties in [VSCode doc on DecorationRenderOptions](https://code.visualstudio.com/api/references/vscode-api#DecorationRenderOptions) section"
+									},
+									"cursor": {
+										"type": "string",
+										"markdownDescription": "The style for the cursor shown over the highlight, as a CSS property. See all available properties in [VSCode doc on DecorationRenderOptions](https://code.visualstudio.com/api/references/vscode-api#DecorationRenderOptions) section"
+									},
+									"before": {
+											"contentText": {
+												"type": "string",
+												"markdownDescription": "A 'contentText' string or icon to be inserted before the highlight. See all available properties in [VSCode doc on ThemableDecorationAttachmentRenderOptions](https://code.visualstudio.com/api/references/vscode-api#ThemableDecorationAttachmentRenderOptions)"
+										}
+									},
+									"after": {
+											"contentText": {
+												"type": "string",
+												"markdownDescription": "A 'contentText' string or icon to be inserted after the highlight. See all available properties in [VSCode doc on ThemableDecorationAttachmentRenderOptions](https://code.visualstudio.com/api/references/vscode-api#ThemableDecorationAttachmentRenderOptions)"
+										}
 									},
 									"overviewRulerColor": {
 										"type": "string",
@@ -135,13 +155,13 @@
 									"regex": {
 										"pattern": {
 											"type": "string",
-											"description": "The RegEx pattern to use for matching instead of the text value.REMEMBER to escape the backslash if there's any in your regexp (using \\\\ instead of single backslash)"
+											"description": "The RegEx pattern to use for matching instead of the text value. REMEMBER to escape any backslashes in your regexp (using \\\\ instead of single backslash)"
 										}
 									},
 									"isWholeLine": {
 										"type": "boolean",
 										"default": false,
-										"description": "if true, then the whole line is highlighted, not just the matching text."
+										"description": "if true, then the whole line is highlighted, not just the matching text"
 									}
 								}
 							}
@@ -151,7 +171,7 @@
 				"todohighlight.keywordsPattern": {
 					"type": "string",
 					"default": "",
-					"description": "Specify keywords via RegExp instead of `todohighlight.keywords` one by one. NOTE that if this present, `todohighlight.keywords` will be ignored. REMEMBER to escapse the backslash if there's any in your regexp (using \\\\ instead of single backslash)."
+					"description": "Specify keywords via RegExp instead of `todohighlight.keywords` one by one. NOTE that if this present, `todohighlight.keywords` will be ignored. REMEMBER to escapse any backslashes in your regexp (using \\\\ instead of single backslash)."
 				},
 				"todohighlight.defaultStyle": {
 					"type": "object",
@@ -159,20 +179,30 @@
 					"properties": {
 						"color": {
 							"type": "string",
-							"markdownDescription": "The text color. See all available properties on [VSCode doc DecorationRenderOptions section](https://code.visualstudio.com/docs/extensionAPI/vscode-api)"
+							"default": "#EEEEEE",
+							"markdownDescription": "The text color. See all available properties in [VSCode doc DecorationRenderOptions section](https://code.visualstudio.com/docs/extensionAPI/vscode-api)"
 						},
 						"backgroundColor": {
 							"type": "string",
-							"description": "The text background color. See all available properties on [VSCode doc DecorationRenderOptions section](https://code.visualstudio.com/docs/extensionAPI/vscode-api)"
+							"default": "#f04422e0",
+							"description": "The background color for the highlight. See all available properties in [VSCode doc DecorationRenderOptions section](https://code.visualstudio.com/docs/extensionAPI/vscode-api)"
 						},
 						"overviewRulerColor": {
 							"type": "string",
-							"markdownDescription": "The color of the ruler mark on the scroll bar. See all available properties on [VSCode doc DecorationRenderOptions section](https://code.visualstudio.com/docs/extensionAPI/vscode-api)"
+							"markdownDescription": "The color of the ruler mark on the scroll bar. See all available properties in [VSCode doc DecorationRenderOptions section](https://code.visualstudio.com/docs/extensionAPI/vscode-api)"
 						},
 						"isWholeLine": {
 							"type": "boolean",
 							"default": false,
-							"description": "if true, then the whole line is highlighted, not just the matching text."
+							"description": "if true, then the whole line is highlighted, not just the matching text"
+						},
+						"cursor": {
+							"type": "string",
+							"markdownDescription": "The style for the cursor shown over the highlight, as a CSS property. See all available properties in [VSCode doc on DecorationRenderOptions](https://code.visualstudio.com/api/references/vscode-api#DecorationRenderOptions) section"
+						},
+						"border": {
+							"type": "string",
+							"markdownDescription": "The border style for the highlight, as a CSS string. See all available properties in [VSCode doc on DecorationRenderOptions](https://code.visualstudio.com/api/references/vscode-api#DecorationRenderOptions) section"
 						}
 					}
 				},
