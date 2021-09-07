@@ -107,7 +107,7 @@
 				"todohighlight.keywords": {
 					"type": "array",
 					"scope": "language-overridable",
-					"markdownDescription": "An array of keywords, and their CSS to customise how they look. Further options can be found [here](https://code.visualstudio.com/api/references/vscode-api#DecorationRenderOptions).",
+					"markdownDescription": "An array of keywords, and their CSS to customise how they look. See all available properties in the [VSCode doc on DecorationRenderOptions](https://code.visualstudio.com/api/references/vscode-api#DecorationRenderOptions) section.",
 					"items": {
 						"anyOf": [
 							{
@@ -115,57 +115,66 @@
 							},
 							{
 								"type": "object",
+								"$comment": "text and regex are self defined. The selection of the other properties for autocompletion are the same as for todohighlight.keywords.",
 								"properties": {
 									"text": {
 										"type": "string",
-										"description": "Custom text to be highlighted"
+										"description": "Custom text to be highlighted."
 									},
-									"color": {
-										"type": "string",
-										"markdownDescription": "The text color. See all available properties in [VSCode doc on DecorationRenderOptions](https://code.visualstudio.com/api/references/vscode-api#DecorationRenderOptions) section"
+									"regex": {
+										"type": "object",
+										"properties": {
+											"pattern": {
+												"type": "string",
+												"description": "The RegEx pattern to use for matching instead of the text value. REMEMBER to escape any backslashes in your regexp (using \\\\ instead of single backslash)."
+											}
+										}
 									},
 									"backgroundColor": {
 										"type": "string",
-										"markdownDescription": "The text background color. See all available properties in [VSCode doc on DecorationRenderOptions](https://code.visualstudio.com/api/references/vscode-api#DecorationRenderOptions) section"
+										"description": "The text background color."
 									},
 									"border": {
 										"type": "string",
-										"markdownDescription": "The border style for the highlight, as a CSS string. See all available properties in [VSCode doc on DecorationRenderOptions](https://code.visualstudio.com/api/references/vscode-api#DecorationRenderOptions) section"
+										"description": "The border style for the highlight, as a CSS string."
+									},
+									"color": {
+										"type": "string",
+										"description": "The text color. "
 									},
 									"cursor": {
 										"type": "string",
-										"markdownDescription": "The style for the cursor shown over the highlight, as a CSS property. See all available properties in [VSCode doc on DecorationRenderOptions](https://code.visualstudio.com/api/references/vscode-api#DecorationRenderOptions) section"
-									},
-									"before": {
-											"contentText": {
-												"type": "string",
-												"markdownDescription": "A 'contentText' string or icon to be inserted before the highlight. See all available properties in [VSCode doc on ThemableDecorationAttachmentRenderOptions](https://code.visualstudio.com/api/references/vscode-api#ThemableDecorationAttachmentRenderOptions)"
-										}
-									},
-									"after": {
-											"contentText": {
-												"type": "string",
-												"markdownDescription": "A 'contentText' string or icon to be inserted after the highlight. See all available properties in [VSCode doc on ThemableDecorationAttachmentRenderOptions](https://code.visualstudio.com/api/references/vscode-api#ThemableDecorationAttachmentRenderOptions)"
-										}
-									},
-									"overviewRulerColor": {
-										"type": "string",
-										"markdownDescription": "The color of the ruler mark on the scroll bar. Use rgba() and define transparent colors to play well with other decorations. See all available properties in [VSCode doc on DecorationRenderOptions](https://code.visualstudio.com/api/references/vscode-api#DecorationRenderOptions) section"
-									},
-									"regex": {
-										"pattern": {
-											"type": "string",
-											"description": "The RegEx pattern to use for matching instead of the text value. REMEMBER to escape any backslashes in your regexp (using \\\\ instead of single backslash)"
-										}
+										"description": "The style for the cursor shown over the highlight, as a CSS property."
 									},
 									"isWholeLine": {
 										"type": "boolean",
 										"default": false,
-										"description": "if true, then the whole line is highlighted, not just the matching text"
+										"description": "If true, then the whole line is highlighted, not just the matching text."
+									},
+									"overviewRulerColor": {
+										"type": "string",
+										"description": "The color of the ruler mark on the scroll bar."
 									}
-								}
+								},
+								"required": [
+									"text"
+								]
 							}
 						]
+					},
+					"default": {
+						"TODO:": {
+							"text": "TODO:",
+							"color": "#fff",
+							"backgroundColor": "#ffbd2a",
+							"overviewRulerColor": "rgba(255,189,42,0.8)"
+						},
+						"FIXME:": {
+							"text": "FIXME:",
+							"color": "#fff",
+							"backgroundColor": "#f06292",
+							"overviewRulerColor": "rgba(240,98,146,0.8)"
+						}
 					}
 				},
 				"todohighlight.keywordsPattern": {
@@ -175,35 +184,38 @@
 				},
 				"todohighlight.defaultStyle": {
 					"type": "object",
-					"description": "Default style for all customized keywords",
+					"description": "Default style for all customized keywords. See all available properties in the [VSCode doc on DecorationRenderOptions](https://code.visualstudio.com/api/references/vscode-api#DecorationRenderOptions) section.",
+					"$comment": "The selection of properties for autocompletion are the same as for todohighlight.keywords.",
 					"properties": {
-						"color": {
-							"type": "string",
-							"default": "#EEEEEE",
-							"markdownDescription": "The text color. See all available properties in [VSCode doc DecorationRenderOptions section](https://code.visualstudio.com/docs/extensionAPI/vscode-api)"
-						},
 						"backgroundColor": {
 							"type": "string",
-							"default": "#f04422e0",
-							"description": "The background color for the highlight. See all available properties in [VSCode doc DecorationRenderOptions section](https://code.visualstudio.com/docs/extensionAPI/vscode-api)"
+							"description": "The background color for the highlight."
 						},
-						"overviewRulerColor": {
+						"border": {
 							"type": "string",
-							"markdownDescription": "The color of the ruler mark on the scroll bar. See all available properties in [VSCode doc DecorationRenderOptions section](https://code.visualstudio.com/docs/extensionAPI/vscode-api)"
+							"description": "The border style for the highlight, as a CSS string."
+						},
+						"color": {
+							"type": "string",
+							"markdownDescription": "The text color."
+						},
+						"cursor": {
+							"type": "string",
+							"description": "The style for the cursor shown over the highlight, as a CSS property."
 						},
 						"isWholeLine": {
 							"type": "boolean",
 							"default": false,
-							"description": "if true, then the whole line is highlighted, not just the matching text"
+							"description": "If true, then the whole line is highlighted, not just the matching text."
 						},
-						"cursor": {
+						"overviewRulerColor": {
 							"type": "string",
-							"markdownDescription": "The style for the cursor shown over the highlight, as a CSS property. See all available properties in [VSCode doc on DecorationRenderOptions](https://code.visualstudio.com/api/references/vscode-api#DecorationRenderOptions) section"
-						},
-						"border": {
-							"type": "string",
-							"markdownDescription": "The border style for the highlight, as a CSS string. See all available properties in [VSCode doc on DecorationRenderOptions](https://code.visualstudio.com/api/references/vscode-api#DecorationRenderOptions) section"
+							"description": "The color of the ruler mark on the scroll bar."
 						}
+					},
+					"default": {
+						"color": "#2196f3",
+						"backgroundColor": "#ffeb3b"
 					}
 				},
 				"todohighlight.include": {
