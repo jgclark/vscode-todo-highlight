@@ -83,6 +83,61 @@
 				"title": "List highlighted annotations",
 				"category": "TODO-Highlight",
 				"command": "todohighlight.listAnnotations"
+			},
+			{
+				"title": "Style 1",
+				"category": "TODO-Highlight",
+				"command": "todohighlight.applyStyle1"
+			},
+			{
+				"title": "Style 2",
+				"category": "TODO-Highlight",
+				"command": "todohighlight.applyStyle2"
+			},
+			{
+				"title": "Style 3",
+				"category": "TODO-Highlight",
+				"command": "todohighlight.applyStyle3"
+			},
+			{
+				"title": "Style 4",
+				"category": "TODO-Highlight",
+				"command": "todohighlight.applyStyle4"
+			},
+			{
+				"title": "Style 5",
+				"category": "TODO-Highlight",
+				"command": "todohighlight.applyStyle5"
+			},
+			{
+				"title": "Style 6",
+				"category": "TODO-Highlight",
+				"command": "todohighlight.applyStyle6"
+			},
+			{
+				"title": "Style 7",
+				"category": "TODO-Highlight",
+				"command": "todohighlight.applyStyle7"
+			},
+			{
+				"title": "Style 8",
+				"category": "TODO-Highlight",
+				"command": "todohighlight.applyStyle8"
+			},
+			{
+				"title": "Style 9",
+				"category": "TODO-Highlight",
+				"command": "todohighlight.applyStyle9"
+			},
+			{
+				"title": "Style 10",
+				"category": "TODO-Highlight",
+				"command": "todohighlight.applyStyle10"
+			},
+			{
+				"title": "Clear Style",
+				"category": "TODO-Highlight",
+				"command": "todohighlight.clearStyle"
 			}
 		],
 		"configuration": {
@@ -109,7 +164,7 @@
 					"scope": "language-overridable",
 					"markdownDescription": "An array of keywords, and their CSS to customise how they look. See all available properties in the [VSCode doc on DecorationRenderOptions](https://code.visualstudio.com/api/references/vscode-api#DecorationRenderOptions) section.",
 					"items": {
-						"anyOf": [
+						"oneOf": [
 							{
 								"type": "string"
 							},
@@ -158,7 +213,34 @@
 								},
 								"required": [
 									"text"
-								]
+								],
+								"not": {
+									"required": [
+										"styleId"
+									]
+								}
+							},
+							{
+								"type": "object",
+								"properties": {
+									"text": {
+										"type": "string",
+										"description": "Custom text to be highlighted."
+									},
+									"styleId": {
+										"type": "number",
+										"markdownDescription": "The style ID from the `#todohighlight.styles#`."
+									}
+								},
+								"required": [
+									"text",
+									"styleId"
+								],
+								"not": {
+									"required": [
+										"regex"
+									]
+								}
 							}
 						]
 					},
@@ -265,9 +347,223 @@
 					"type": "number",
 					"default": 5120,
 					"description": "Max files for searching"
+				},
+				"todohighlight.styles": {
+					"type": "array",
+					"items": {
+						"type": "object",
+						"properties": {
+							"enabled": {
+								"type": "boolean",
+								"default": true,
+								"description": "Enable or disable this style from the UI."
+							},
+							"id": {
+								"type": "number",
+								"minimum": 1,
+								"maximum": 10
+							},
+							"backgroundColor": {
+								"type": "string",
+								"description": "The text background color."
+							},
+							"border": {
+								"type": "string",
+								"description": "The border style for the highlight, as a CSS string."
+							},
+							"color": {
+								"type": "string",
+								"description": "The text color. "
+							},
+							"cursor": {
+								"type": "string",
+								"description": "The style for the cursor shown over the highlight, as a CSS property."
+							},
+							"isWholeLine": {
+								"type": "boolean",
+								"default": false,
+								"description": "If true, then the whole line is highlighted, not just the matching text."
+							},
+							"overviewRulerColor": {
+								"type": "string",
+								"description": "The color of the ruler mark on the scroll bar."
+							}
+						},
+						"required": [
+							"id"
+						]
+					},
+					"default": [
+						{
+							"id": 1,
+							"enabled": true,
+							"backgroundColor": "#ffeb3b"
+						},
+						{
+							"id": 2,
+							"enabled": true,
+							"backgroundColor": "#2196f3"
+						},
+						{
+							"id": 3,
+							"enabled": true,
+							"backgroundColor": "#ff9800"
+						},
+						{
+							"id": 4,
+							"enabled": false,
+							"backgroundColor": "#9c27b0"
+						},
+						{
+							"id": 5,
+							"enabled": false,
+							"backgroundColor": "#2e7d32"
+						},
+						{
+							"id": 6,
+							"enabled": false,
+							"backgroundColor": "#ff5722"
+						},
+						{
+							"id": 7,
+							"enabled": false,
+							"backgroundColor": "#607d8b"
+						},
+						{
+							"id": 8,
+							"enabled": false,
+							"backgroundColor": "#795548"
+						},
+						{
+							"id": 9,
+							"enabled": false,
+							"backgroundColor": "#ffeb3b"
+						},
+						{
+							"id": 10,
+							"enabled": false,
+							"backgroundColor": "#2196f3"
+						}
+					]
 				}
 			}
-		}
+		},
+		"menus": {
+			"commandPalette": [
+				{
+					"command": "todohighlight.applyStyle1",
+					"when": "false"
+				},
+				{
+					"command": "todohighlight.applyStyle2",
+					"when": "false"
+				},
+				{
+					"command": "todohighlight.applyStyle3",
+					"when": "false"
+				},
+				{
+					"command": "todohighlight.applyStyle4",
+					"when": "false"
+				},
+				{
+					"command": "todohighlight.applyStyle5",
+					"when": "false"
+				},
+				{
+					"command": "todohighlight.applyStyle6",
+					"when": "false"
+				},
+				{
+					"command": "todohighlight.applyStyle7",
+					"when": "false"
+				},
+				{
+					"command": "todohighlight.applyStyle8",
+					"when": "false"
+				},
+				{
+					"command": "todohighlight.applyStyle9",
+					"when": "false"
+				},
+				{
+					"command": "todohighlight.applyStyle10",
+					"when": "false"
+				},
+				{
+					"command": "todohighlight.clearStyle",
+					"when": "false"
+				}
+			],
+			"editor/context": [
+				{
+					"submenu": "todohighlight.editorMenu"
+				}
+			],
+			"todohighlight.editorMenu": [
+				{
+					"command": "todohighlight.toggleHighlight"
+				},
+				{
+					"submenu": "todohighlight.applyStyleMenu"
+				},
+				{
+					"command": "todohighlight.clearStyle"
+				}
+			],
+			"todohighlight.applyStyleMenu": [
+				{
+					"command": "todohighlight.applyStyle1",
+					"when": "todohighlight.styleContextKey1"
+				},
+				{
+					"command": "todohighlight.applyStyle2",
+					"when": "todohighlight.styleContextKey2"
+				},
+				{
+					"command": "todohighlight.applyStyle3",
+					"when": "todohighlight.styleContextKey3"
+				},
+				{
+					"command": "todohighlight.applyStyle4",
+					"when": "todohighlight.styleContextKey4"
+				},
+				{
+					"command": "todohighlight.applyStyle5",
+					"when": "todohighlight.styleContextKey5"
+				},
+				{
+					"command": "todohighlight.applyStyle6",
+					"when": "todohighlight.styleContextKey6"
+				},
+				{
+					"command": "todohighlight.applyStyle7",
+					"when": "todohighlight.styleContextKey7"
+				},
+				{
+					"command": "todohighlight.applyStyle8",
+					"when": "todohighlight.styleContextKey8"
+				},
+				{
+					"command": "todohighlight.applyStyle9",
+					"when": "todohighlight.styleContextKey9"
+				},
+				{
+					"command": "todohighlight.applyStyle10",
+					"when": "todohighlight.styleContextKey10"
+				}
+			]
+		},
+		"submenus": [
+			{
+				"id": "todohighlight.editorMenu",
+				"label": "Todo Highlight"
+			},
+			{
+				"id": "todohighlight.applyStyleMenu",
+				"label": "Apply Style"
+			}
+		]
 	},
 	"devDependencies": {
 		"@types/mocha": "^2.2.32",

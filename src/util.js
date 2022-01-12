@@ -27,26 +27,51 @@ var DEFAULT_STYLE = {
     backgroundColor: "#ffeb3b",
 };
 
-function getAssembledData(keywords, customDefaultStyle, isCaseSensitive) {
-    var result = {}, regex = [], reg;
+function isReferencedStyleKeyword(obj) {
+    return obj.hasOwnProperty('styleId');
+}
+
+function getAssembledData(
+    keywords,
+    customDefaultStyle,
+    isCaseSensitive,
+    styles
+) {
+    var result = {},
+        regex = [],
+        reg;
     keywords.forEach((v) => {
         v = typeof v == 'string' ? { text: v } : v;
-        var text = v.text;
-        if (!text) return;//NOTE: in case of the text is empty
+        let text = v.text;
+        if (!text) return; //NOTE: in case of the text is empty
 
         if (!isCaseSensitive) {
             text = text.toUpperCase();
         }
 
+        if (isReferencedStyleKeyword(v)) {
+            result[text] = Object.assign(
+                {},
+                DEFAULT_STYLE,
+                customDefaultStyle,
+                styles.find((s) => s.enabled && s.id === v.styleId) ?? {}
+            );
+        } else {
         if (text == 'TODO:' || text == 'FIXME:') {
             v = Object.assign({}, DEFAULT_KEYWORDS[text], v);
         }
-        result[text] = Object.assign({}, DEFAULT_STYLE, customDefaultStyle, v);
+            result[text] = Object.assign(
+                {},
+                DEFAULT_STYLE,
+                customDefaultStyle,
+                v
+            );
 
         if (v.regex) {
-            regex.push(regex.pattern||text);
+                regex.push(regex.pattern || text);
         }
-    })
+        }
+    });
 
     if (regex) {
         reg = regex.join('|');
@@ -292,5 +317,6 @@ module.exports = {
     showOutputChannel,
     escapeRegExp,
     escapeRegExpGroups,
-    escapeRegExpGroupsLegacy
+    escapeRegExpGroupsLegacy,
+    isReferencedStyleKeyword,
 };
