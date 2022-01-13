@@ -4,21 +4,27 @@
  * NOTE: each decoration type has a unique key, the highlight and clear highight functionality are based on it
  */
 
-var vscode = require('vscode');
-var util = require('./util');
-var window = vscode.window;
-var workspace = vscode.workspace;
+import * as vscode from 'vscode';
+import { window, workspace } from 'vscode';
+import { configurations, Keyword, Style } from './config';
+import { annotationsFound, chooseAnnotationType, createStatusBarItem, DEFAULT_STYLE, escapeRegExp, escapeRegExpGroups, getAssembledData, globalState, isRegexKeyword, isTextKeyword, searchAnnotations } from './util';
 
-function activate(context) {
+function activate(context: vscode.ExtensionContext) {
 
-    var timeout = null;
-    var activeEditor = window.activeTextEditor;
-    var isCaseSensitive, assembledData, decorationTypes, pattern, styleForRegExp, keywordsPattern;
-    var workspaceState = context.workspaceState;
+    let timeout: NodeJS.Timer | null = null;
+    let activeEditor = window.activeTextEditor;
+    let isCaseSensitive: boolean | undefined;
+    let assembledData: { [key: string]: Keyword };
+    let decorationTypes: { [x: string]: vscode.TextEditorDecorationType; };
+    let pattern: RegExp;
+    let styleForRegExp: vscode.DecorationRenderOptions;
+    let keywordsPattern: string;
 
-    var settings = workspace.getConfiguration('todohighlight');
+    let workspaceState = context.workspaceState;
 
-    init(settings);
+    const settings = workspace.getConfiguration('todohighlight');
+
+    init();
 
     context.subscriptions.push(vscode.commands.registerCommand('todohighlight.toggleHighlight', function () {
         settings.update('isEnable', !settings.get('isEnable'), true).then(function () {
@@ -28,26 +34,26 @@ function activate(context) {
 
     context.subscriptions.push(vscode.commands.registerCommand('todohighlight.listAnnotations', function () {
         if (keywordsPattern.trim()) {
-            util.searchAnnotations(workspaceState, pattern, util.annotationsFound);
+            searchAnnotations(workspaceState, pattern, annotationsFound);
         } else {
             if (!assembledData) return;
-            var availableAnnotationTypes = Object.keys(assembledData);
+            let availableAnnotationTypes = Object.keys(assembledData);
             availableAnnotationTypes.unshift('ALL');
-            util.chooseAnnotationType(availableAnnotationTypes).then(function (annotationType) {
+            chooseAnnotationType(availableAnnotationTypes).then(function (annotationType) {
                 if (!annotationType) return;
-                var searchPattern = pattern;
+                let searchPattern = pattern;
                 if (annotationType != 'ALL') {
-                    annotationType = util.escapeRegExp(annotationType);
+                    annotationType = escapeRegExp(annotationType);
                     searchPattern = new RegExp(annotationType, isCaseSensitive ? 'g' : 'gi');
                 }
-                util.searchAnnotations(workspaceState, searchPattern, util.annotationsFound);
+                searchAnnotations(workspaceState, searchPattern, annotationsFound);
             });
         }
     }));
 
     context.subscriptions.push(vscode.commands.registerCommand('todohighlight.showOutputChannel', function () {
-        var annotationList = workspaceState.get('annotationList', []);
-        util.showOutputChannel(annotationList);
+        let annotationList = workspaceState.get('annotationList', []);
+        showOutputChannel(annotationList);
     }));
 
     if (activeEditor) {
@@ -68,33 +74,30 @@ function activate(context) {
     }, null, context.subscriptions);
 
     workspace.onDidChangeConfiguration(function () {
-        settings = workspace.getConfiguration('todohighlight');
-
         //NOTE: if disabled, do not re-initialize the data or we will not be able to clear the style immediatly via 'toggle highlight' command
-        if (!settings.get('isEnable')) return;
+        if (!configurations.get('isEnable')) return;
 
-        init(settings);
+        init();
         triggerUpdateDecorations();
     }, null, context.subscriptions);
 
     function updateDecorations() {
-
         if (!activeEditor || !activeEditor.document) {
             return;
         }
 
-        var text = activeEditor.document.getText();
-        var matches = {}, match;
+        let text = activeEditor.document.getText();
+        let matches: { [key: string]: any; } = {}, match;
         while (match = pattern.exec(text)) {
-            var startPos = activeEditor.document.positionAt(match.index);
-            var endPos = activeEditor.document.positionAt(match.index + match[0].length);
+            const startPos = activeEditor.document.positionAt(match.index);
+            const endPos = activeEditor.document.positionAt(match.index + match[0].length);
 
-            var decoration = {
+            const decoration = {
                 range: new vscode.Range(startPos, endPos)
             };
 
-            var matchedValue = match[0];
-            let patternIndex = match.slice(1).indexOf(matchedValue);
+            let matchedValue = match[0];
+            const patternIndex = match.slice(1).indexOf(matchedValue);
             matchedValue = Object.keys(decorationTypes)[patternIndex] || matchedValue;
 
             if (!isCaseSensitive) {
@@ -113,40 +116,41 @@ function activate(context) {
         }
 
         Object.keys(decorationTypes).forEach(v => {
-            var rangeOption = settings.get('isEnable') && matches[v] ? matches[v] : [];
-            var decorationType = decorationTypes[v];
-            activeEditor.setDecorations(decorationType, rangeOption);
+            let rangeOption = settings.get('isEnable') && matches[v] ? matches[v] : [];
+            let decorationType = decorationTypes[v];
+            activeEditor!.setDecorations(decorationType, rangeOption);  // FIXME: remove `!`. activeEditor is defined. for some reason, TS doesn't see it. 
         })
     }
 
-    function init(settings) {
-        var customDefaultStyle = settings.get('defaultStyle');
-        keywordsPattern = settings.get('keywordsPattern');
-        isCaseSensitive = settings.get('isCaseSensitive', true);
+    function init() {
+        const customDefaultStyle = configurations.get('defaultStyle', null, DEFAULT_STYLE);
+        keywordsPattern = configurations.get('keywordsPattern', null, "");
+        isCaseSensitive = configurations.get('isCaseSensitive', null, true);
 
-        if (!window.statusBarItem) {
-            window.statusBarItem = util.createStatusBarItem();
+        if (!globalState.statusBarItem) {
+            globalState.statusBarItem = createStatusBarItem();
         }
-        if (!window.outputChannel) {
-            window.outputChannel = window.createOutputChannel('TodoHighlight');
+        if (!globalState.outputChannel) {
+            globalState.outputChannel = window.createOutputChannel('TodoHighlight');
         }
 
         decorationTypes = {};
 
+        let stringPattern: string;
         if (keywordsPattern.trim()) {
-            styleForRegExp = Object.assign({}, util.DEFAULT_STYLE, customDefaultStyle, {
+            styleForRegExp = Object.assign({}, DEFAULT_STYLE, customDefaultStyle, {
                 overviewRulerLane: vscode.OverviewRulerLane.Right
             });
 
-            pattern = keywordsPattern;
+            stringPattern = keywordsPattern;
         } else {
-            assembledData = util.getAssembledData(settings.get('keywords'), customDefaultStyle, isCaseSensitive);
+            assembledData = getAssembledData(configurations.get('keywords', null, []), customDefaultStyle, isCaseSensitive);
             Object.keys(assembledData).forEach((v) => {
                 if (!isCaseSensitive) {
                     v = v.toUpperCase()
                 }
 
-                var mergedStyle = Object.assign({}, {
+                const mergedStyle = Object.assign({}, {
                     overviewRulerLane: vscode.OverviewRulerLane.Right
                 }, assembledData[v]);
 
@@ -159,20 +163,23 @@ function activate(context) {
             });
 
             // Give each keyword a group in the pattern
-            pattern = Object.keys(assembledData).map((v) => {
-                if (!assembledData[v].regex) {
-                    return `(${util.escapeRegExp(v)})`;
+            stringPattern = Object.keys(assembledData).map((v) => {
+                const keyword = assembledData[v];
+                if (isRegexKeyword(keyword)) {
+                    const p = keyword.regex.pattern ?? v;
+                    // Ignore unescaped parantheses to avoid messing with our groups
+                    return `(${escapeRegExpGroups(p)})`
                 }
-
-                let p = assembledData[v].regex.pattern || v;
-                // Ignore unescaped parantheses to avoid messing with our groups
-                return `(${util.escapeRegExpGroups(p)})`
+                else {
+                    return `(${escapeRegExp(v)})`;
+                }
             }).join('|');
         }
 
-        pattern = new RegExp(pattern, 'gi');
         if (isCaseSensitive) {
-            pattern = new RegExp(pattern, 'g');
+            pattern = new RegExp(stringPattern, 'g');
+        } else {
+            pattern = new RegExp(stringPattern, 'gi');
         }
 
     }
@@ -184,3 +191,8 @@ function activate(context) {
 }
 
 exports.activate = activate;
+
+function showOutputChannel(annotationList: never[]) {
+    throw new Error('Function not implemented.');
+}
+
