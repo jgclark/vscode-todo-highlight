@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
-import { window, workspace } from 'vscode';
+import { DecorationRenderOptions, window, workspace } from 'vscode';
 import * as os from 'os';
-import { configurations, Keyword, RegExpKeyword, Style, TextKeyword } from './config';
+import { configurations, Keyword, RegExpKeyword, TextKeyword } from './config';
 
 const defaultIcon = '$(checklist)';
 const zapIcon = '$(zap)';
@@ -49,7 +49,7 @@ export function isRegexKeyword(v: any): v is RegExpKeyword {
     return v && v.regex;
 }
 
-export function getAssembledData(keywords: (string | Keyword)[], customDefaultStyle: Style, isCaseSensitive: boolean): { [key: string]: Keyword } {
+export function getAssembledData(keywords: (string | Keyword)[], customDefaultStyle: DecorationRenderOptions, isCaseSensitive: boolean): { [key: string]: Keyword } {
     const result: Record<string, Keyword> = {};
     const regex: string[] = [];
     keywords.forEach((v) => {

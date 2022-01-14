@@ -6,8 +6,8 @@
 
 import * as vscode from 'vscode';
 import { window, workspace } from 'vscode';
-import { configurations, Keyword, Style } from './config';
-import { annotationsFound, chooseAnnotationType, createStatusBarItem, DEFAULT_STYLE, escapeRegExp, escapeRegExpGroups, getAssembledData, globalState, isRegexKeyword, isTextKeyword, searchAnnotations } from './util';
+import { configurations, Keyword } from './config';
+import { annotationsFound, chooseAnnotationType, createStatusBarItem, DEFAULT_STYLE, escapeRegExp, escapeRegExpGroups, getAssembledData, globalState, isRegexKeyword, searchAnnotations } from './util';
 
 function activate(context: vscode.ExtensionContext) {
 
