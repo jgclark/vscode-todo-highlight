@@ -1,7 +1,8 @@
 import * as vscode from 'vscode';
 import { DecorationRenderOptions, window, workspace } from 'vscode';
 import * as os from 'os';
-import { configurations, Keyword, RegExpKeyword, TextKeyword } from './config';
+import { configurations } from './config';
+import type { Keyword, RegExpKeyword, TextKeyword } from './config';
 
 const defaultIcon = '$(checklist)';
 const zapIcon = '$(zap)';
@@ -96,12 +97,12 @@ function getPathes(config: string[] | string) {
     return Array.isArray(config) ? '{' + config.join(',') + '}' : config;
 }
 
-export function searchAnnotations(workspaceState: vscode.Memento, pattern: RegExp, 
-    callback: (err: {message: string} | null, annotations?: {[key:string] : Annotation}, annotationList?: Annotation[]) => void) {
+export function searchAnnotations(workspaceState: vscode.Memento, pattern: RegExp,
+    callback: (err: { message: string } | null, annotations?: { [key: string]: Annotation }, annotationList?: Annotation[]) => void) {
 
-    let includePattern = getPathes(configurations.get('include', null, [])) || '{**/*}';
-    let excludePattern = getPathes(configurations.get('exclude', null, []));
-    let limitationForSearch = configurations.get('maxFilesForSearch', null, 5120);
+    let includePattern = getPathes(configurations.get('include', [])) || '{**/*}';
+    let excludePattern = getPathes(configurations.get('exclude', []));
+    let limitationForSearch = configurations.get('maxFilesForSearch', 5120);
 
     let statusMsg = ` Searching...`;
 
@@ -194,13 +195,13 @@ function searchAnnotationInFile(file: vscode.TextDocument, annotations: { [key: 
     }
 }
 
-export function annotationsFound(err: {message: string} | null, annotations?: any, annotationList?: Annotation[]) {
+export function annotationsFound(err: { message: string } | null, annotations?: any, annotationList?: Annotation[]) {
     if (err) {
         console.log('todohighlight err:', err);
         setStatusMsg(defaultIcon, defaultMsg);
         return;
     }
-    if(!annotationList) return;
+    if (!annotationList) return;
 
     const resultNum = annotationList.length;
     const tooltip = resultNum + ' result(s) found';

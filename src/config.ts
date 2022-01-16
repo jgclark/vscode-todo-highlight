@@ -1,5 +1,4 @@
-import { DecorationRenderOptions } from 'vscode';
-import { VSCodeConfigurations } from './config-utils';
+import { ConfigurationTarget, DecorationRenderOptions, workspace, WorkspaceConfiguration } from 'vscode';
 
 
 export interface TextKeyword extends DecorationRenderOptions {
@@ -62,6 +61,31 @@ export interface TODOHighlightConfig {
     maxFilesForSearch: number;
 }
 
+export class TODOHighlightConfiguration {
+    readonly section = 'todohighlight';
+    get config(): WorkspaceConfiguration {
+        return workspace.getConfiguration(this.section);
+    }
 
-const EXTENSION = 'todohighlight';
-export const configurations = new VSCodeConfigurations<TODOHighlightConfig>(EXTENSION);
+    update<K extends keyof TODOHighlightConfig>(
+        subsection: K,
+        value: TODOHighlightConfig[K],
+        configurationTarget?: boolean | ConfigurationTarget,
+        overrideInLanguage?: boolean
+    ): Thenable<void> {
+        return this.config.update(subsection, value, configurationTarget, overrideInLanguage);
+    }
+
+    get<K extends keyof TODOHighlightConfig>(
+        subsection: K,
+    ): TODOHighlightConfig[K] | undefined;
+    get<K extends keyof TODOHighlightConfig>(
+        subsection: K,
+        defaultValue: TODOHighlightConfig[K],
+    ): TODOHighlightConfig[K];
+    get(subsection: any, defaultValue?: any) {
+        return this.config.get(subsection, defaultValue);
+    }
+}
+
+export const configurations = new TODOHighlightConfiguration();

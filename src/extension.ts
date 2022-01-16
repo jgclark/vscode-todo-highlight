@@ -6,7 +6,8 @@
 
 import * as vscode from 'vscode';
 import { window, workspace } from 'vscode';
-import { configurations, Keyword } from './config';
+import { configurations } from './config';
+import type { Keyword } from './config';
 import { annotationsFound, chooseAnnotationType, createStatusBarItem, DEFAULT_STYLE, escapeRegExp, escapeRegExpGroups, getAssembledData, globalState, isRegexKeyword, searchAnnotations } from './util';
 
 function activate(context: vscode.ExtensionContext) {
@@ -123,9 +124,9 @@ function activate(context: vscode.ExtensionContext) {
     }
 
     function init() {
-        const customDefaultStyle = configurations.get('defaultStyle', null, DEFAULT_STYLE);
-        keywordsPattern = configurations.get('keywordsPattern', null, "");
-        isCaseSensitive = configurations.get('isCaseSensitive', null, true);
+        const customDefaultStyle = configurations.get('defaultStyle', DEFAULT_STYLE);
+        keywordsPattern = configurations.get('keywordsPattern', "");
+        isCaseSensitive = configurations.get('isCaseSensitive', true);
 
         if (!globalState.statusBarItem) {
             globalState.statusBarItem = createStatusBarItem();
@@ -144,7 +145,7 @@ function activate(context: vscode.ExtensionContext) {
 
             stringPattern = keywordsPattern;
         } else {
-            assembledData = getAssembledData(configurations.get('keywords', null, []), customDefaultStyle, isCaseSensitive);
+            assembledData = getAssembledData(configurations.get('keywords', []), customDefaultStyle, isCaseSensitive);
             Object.keys(assembledData).forEach((v) => {
                 if (!isCaseSensitive) {
                     v = v.toUpperCase()
