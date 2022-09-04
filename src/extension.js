@@ -6,6 +6,7 @@
 
 var vscode = require('vscode');
 var util = require('./util');
+var editorContextApplyStyle = require('./editorContextApplyStyle');
 var window = vscode.window;
 var workspace = vscode.workspace;
 
@@ -49,6 +50,13 @@ function activate(context) {
         var annotationList = workspaceState.get('annotationList', []);
         util.showOutputChannel(annotationList);
     }));
+
+    context.subscriptions.push(
+        vscode.commands.registerTextEditorCommand(
+            'todohighlight.clearStyle',
+            (editor) => editorContextApplyStyle.clearStyle(editor, settings)
+        )
+    );
 
     if (activeEditor) {
         triggerUpdateDecorations();
@@ -131,6 +139,9 @@ function activate(context) {
             window.outputChannel = window.createOutputChannel('TodoHighlight');
         }
 
+        // setup style from editor context
+        editorContextApplyStyle.init(settings);
+
         decorationTypes = {};
 
         if (keywordsPattern.trim()) {
@@ -140,7 +151,12 @@ function activate(context) {
 
             pattern = keywordsPattern;
         } else {
-            assembledData = util.getAssembledData(settings.get('keywords'), customDefaultStyle, isCaseSensitive);
+            assembledData = util.getAssembledData(
+                settings.get('keywords'),
+                customDefaultStyle,
+                isCaseSensitive,
+                settings.get('styles', [])
+            );
             Object.keys(assembledData).forEach((v) => {
                 if (!isCaseSensitive) {
                     v = v.toUpperCase()
@@ -183,4 +199,13 @@ function activate(context) {
     }
 }
 
-exports.activate = activate;
+function deactivate() {
+    editorContextApplyStyle.disposables.forEach((disposable) =>
+        disposable.dispose()
+    );
+}
+
+module.exports = {
+	activate,
+	deactivate
+}
