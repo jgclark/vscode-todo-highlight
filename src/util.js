@@ -7,18 +7,26 @@ var defaultIcon = '$(checklist)';
 var zapIcon = '$(zap)';
 var defaultMsg = '0';
 
+var SeverityMap = {
+    'error': vscode.DiagnosticSeverity.Error,
+    'warning': vscode.DiagnosticSeverity.Warning,
+    'information': vscode.DiagnosticSeverity.Information
+};
+
 var DEFAULT_KEYWORDS = {
     "TODO:": {
         text: "TODO:",
         color: '#fff',
         backgroundColor: '#ffbd2a',
-        overviewRulerColor: 'rgba(255,189,42,0.8)'
+        overviewRulerColor: 'rgba(255,189,42,0.8)',
+        diagnosticSeverity: 'error'
     },
     "FIXME:": {
         text: "FIXME:",
         color: '#fff',
         backgroundColor: '#f06292',
-        overviewRulerColor: 'rgba(240,98,146,0.8)'
+        overviewRulerColor: 'rgba(240,98,146,0.8)',
+        diagnosticSeverity: 'warning'
     }
 };
 
@@ -41,6 +49,7 @@ function getAssembledData(keywords, customDefaultStyle, isCaseSensitive) {
         if (text == 'TODO:' || text == 'FIXME:') {
             v = Object.assign({}, DEFAULT_KEYWORDS[text], v);
         }
+        v.diagnosticSeverity = SeverityMap[v.diagnosticSeverity]
         result[text] = Object.assign({}, DEFAULT_STYLE, customDefaultStyle, v);
 
         if (v.regex) {
@@ -292,5 +301,6 @@ module.exports = {
     showOutputChannel,
     escapeRegExp,
     escapeRegExpGroups,
-    escapeRegExpGroupsLegacy
+    escapeRegExpGroupsLegacy,
+    getContent
 };
