@@ -3,6 +3,7 @@
 HOWTO-publish.md
 .vscode/tasks.json
 node_modules/
+dist/
 .vsixmanifest
 vsc-todo-highlight.code-workspace
 todo-highlight.code-workspace
