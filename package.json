@@ -154,6 +154,12 @@
 									"overviewRulerColor": {
 										"type": "string",
 										"description": "The color of the ruler mark on the scroll bar."
+									},
+									"diagnosticSeverity": {
+										"type": "string",
+										"default": "information",
+										"enum": ["none", "error", "warning", "information"],
+										"description": "If enabled, set the diagnostic severity in the problems view."
 									}
 								},
 								"required": [
@@ -265,6 +271,11 @@
 					"type": "number",
 					"default": 5120,
 					"description": "Max files for searching"
+				},
+				"todohighlight.enableDiagnostics": {
+					"type": "boolean",
+					"default": false,
+					"description": "Enable creating entries in the problems view."
 				}
 			}
 		}

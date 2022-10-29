@@ -50,6 +50,9 @@ function activate(context) {
         util.showOutputChannel(annotationList);
     }));
 
+    var diagnostics = vscode.languages.createDiagnosticCollection('todohighlight');
+    context.subscriptions.push(diagnostics);
+
     if (activeEditor) {
         triggerUpdateDecorations();
     }
@@ -67,6 +70,10 @@ function activate(context) {
         }
     }, null, context.subscriptions);
 
+    workspace.onDidCloseTextDocument(function (event) {
+        diagnostics.set(event.document, [])
+    }, null, context.subscriptions);
+
     workspace.onDidChangeConfiguration(function () {
         settings = workspace.getConfiguration('todohighlight');
 
@@ -77,11 +84,26 @@ function activate(context) {
         triggerUpdateDecorations();
     }, null, context.subscriptions);
 
+    function createDiagnostic(document, range, match, matchedValue) {
+        var lineText = document.lineAt(range.start).text;
+        var content = util.getContent(lineText, match);
+        if (content.length > 160) {
+            content = content.substring(0, 160).trim() + '...';
+        }
+        var severity = assembledData[matchedValue]?.diagnosticSeverity;
+        if (severity !== null && severity !== undefined) {
+            return new vscode.Diagnostic(range, content, severity);
+        }
+    }
+
     function updateDecorations() {
 
         if (!activeEditor || !activeEditor.document) {
             return;
         }
+
+        var problems = [];
+        var postDiagnostics = settings.get('isEnable') && settings.get('enableDiagnostics');
 
         var text = activeEditor.document.getText();
         var matches = {}, match;
@@ -96,6 +118,13 @@ function activate(context) {
             var matchedValue = match[0];
             let patternIndex = match.slice(1).indexOf(matchedValue);
             matchedValue = Object.keys(decorationTypes)[patternIndex] || matchedValue;
+
+            if (postDiagnostics) {
+                var problem = createDiagnostic(activeEditor.document, decoration.range, match, matchedValue);
+                if (problem) {
+                    problems.push(problem);
+                }
+            }
 
             if (!isCaseSensitive) {
                 matchedValue = matchedValue.toUpperCase();
@@ -117,6 +146,8 @@ function activate(context) {
             var decorationType = decorationTypes[v];
             activeEditor.setDecorations(decorationType, rangeOption);
         })
+
+        diagnostics.set(activeEditor.document.uri, problems);
     }
 
     function init(settings) {
