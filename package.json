@@ -168,20 +168,20 @@
 							}
 						]
 					},
-					"default": {
-						"TODO:": {
+					"default": [
+						{
 							"text": "TODO:",
 							"color": "#fff",
 							"backgroundColor": "#ffbd2a",
 							"overviewRulerColor": "rgba(255,189,42,0.8)"
 						},
-						"FIXME:": {
+						{
 							"text": "FIXME:",
 							"color": "#fff",
 							"backgroundColor": "#f06292",
 							"overviewRulerColor": "rgba(240,98,146,0.8)"
 						}
-					}
+					]
 				},
 				"todohighlight.keywordsPattern": {
 					"type": "string",
@@ -190,7 +190,7 @@
 				},
 				"todohighlight.defaultStyle": {
 					"type": "object",
-					"description": "Default style for all customized keywords. See all available properties in the [VSCode doc on DecorationRenderOptions](https://code.visualstudio.com/api/references/vscode-api#DecorationRenderOptions) section.",
+					"markdownDescription": "Default style for all customized keywords. See all available properties in the [VSCode doc on DecorationRenderOptions](https://code.visualstudio.com/api/references/vscode-api#DecorationRenderOptions) section.",
 					"$comment": "The selection of properties for autocompletion are the same as for todohighlight.keywords.",
 					"properties": {
 						"backgroundColor": {
