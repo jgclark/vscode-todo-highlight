@@ -100,7 +100,7 @@ An example of a custom configuration, showing a range of the different features:
                 /**
                  * Positive lookbehind (`(?<=...)`) is only supported in Node.js v9 and up.
                  * If your VSCode version is built on an earlier version the example above may not work. Simple tests:
-                        * Shouldm't work: note  deNOTEd  NOTEing
+                        * Shouldn't work: note  deNOTEd  NOTEing
                         * Should work: NOTE:  "NOTE:"
                  **/
             },
