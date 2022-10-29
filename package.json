@@ -297,7 +297,7 @@
 	"dependencies": {
 		"neo-async": "^2.6.2",
 		"test": "^0.6.0",
-		"vsce": "^1.77.0",
+		"vsce": "^2.13.0",
 		"webpack": "^5.52.0"
 	}
 }
