@@ -75,6 +75,10 @@ export interface TODOHighlightConfig {
      * Max files for searching
      */
     maxFilesForSearch: number;
+    /**
+     * Enable creating entries in the problems view.
+     */
+    enableDiagnostics: boolean;
 }
 
 export class TODOHighlightConfiguration {

@@ -23,7 +23,7 @@ function activate(context: vscode.ExtensionContext) {
 
     let workspaceState = context.workspaceState;
 
-    const settings = workspace.getConfiguration('todohighlight');
+    const settings = configurations;
 
     init();
 
