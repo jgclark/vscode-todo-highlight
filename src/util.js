@@ -1,5 +1,6 @@
 var vscode = require('vscode');
 var os = require("os");
+var minimatch = require('minimatch');
 var window = vscode.window;
 var workspace = vscode.workspace;
 
@@ -89,6 +90,20 @@ function getPathes(config) {
         '{' + config.join(',') + '}'
         : (typeof config == 'string' ? config : '');
 }
+
+function isFileNameOk(filename) {
+
+    var settings = workspace.getConfiguration('todohighlight');
+    var includePatterns = getPathes(settings.get('include')) || '{**/*}';
+    var excludePatterns = getPathes(settings.get('exclude'));
+
+    if (minimatch(filename, includePatterns) && !minimatch(filename, excludePatterns)) {
+        return true;
+    }
+
+    return false;
+}
+
 
 function searchAnnotations(workspaceState, pattern, callback) {
 
@@ -302,5 +317,6 @@ module.exports = {
     escapeRegExp,
     escapeRegExpGroups,
     escapeRegExpGroupsLegacy,
-    getContent
+    getContent,
+    isFileNameOk
 };

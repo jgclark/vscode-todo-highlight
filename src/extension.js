@@ -102,6 +102,11 @@ function activate(context) {
             return;
         }
 
+        // the function isFileNameOk checks for the include and exclude settings
+        if (!util.isFileNameOk(activeEditor.document.fileName)) {
+            return;
+        }
+
         var problems = [];
         var postDiagnostics = settings.get('isEnable') && settings.get('enableDiagnostics');
 
