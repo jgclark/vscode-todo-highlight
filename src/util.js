@@ -87,7 +87,7 @@ function chooseAnnotationType(availableAnnotationTypes) {
 //get the include/exclude config
 function getPathes(config) {
     return Array.isArray(config) ?
-        '{' + config.join(',') + '}'
+        '{' + config.join(',') + ',' + '}'
         : (typeof config == 'string' ? config : '');
 }
 
