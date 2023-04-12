@@ -1,6 +1,6 @@
 ## TODO Highlight v2
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-brightgreen.svg)](https://opensource.org/licenses/MIT) [![Version](https://vsmarketplacebadge.apphb.com/version-short/jgclark.vscode-todo-highlight.svg)](https://marketplace.visualstudio.com/items?itemName=jgclark.vscode-todo-highlight) [![Installs](https://vsmarketplacebadge.apphb.com/installs-short/jgclark.vscode-todo-highlight.svg)](https://marketplace.visualstudio.com/items?itemName=jgclark.vscode-todo-highlight) [![Ratings](https://vsmarketplacebadge.apphb.com/rating-short/jgclark.vscode-todo-highlight.svg)](https://marketplace.visualstudio.com/items?itemName=jgclark.vscode-todo-highlight)
+[![License: MIT](https://img.shields.io/badge/License-MIT-brightgreen.svg)](https://opensource.org/licenses/MIT) [![Version](https://vsmarketplacebadges.dev/version-short/jgclark.vscode-todo-highlight.png)](https://marketplace.visualstudio.com/items?itemName=jgclark.vscode-todo-highlight) [![Installs](https://vsmarketplacebadges.dev/installs-short/jgclark.vscode-todo-highlight.png)](https://marketplace.visualstudio.com/items?itemName=jgclark.vscode-todo-highlight) [![Ratings](https://vsmarketplacebadges.dev/rating-star/jgclark.vscode-todo-highlight.png)](https://marketplace.visualstudio.com/items?itemName=jgclark.vscode-todo-highlight)
 
 **Highlight `TODO:`, `FIXME:` and any other annotations you wish within your code in VSCode.**
 
@@ -8,7 +8,7 @@ Sometimes you forget to review the TODOs and NOTEs you've added while coding bef
 
 They can also be set on a per-language basis.
 
-> NB: This extension was [started and maintained by **wayou**](https://github.com/wayou/vscode-todo-highlight) until 2018, when it was abandoned. 
+> NB: This extension was [started and maintained by **wayou**](https://github.com/wayou/vscode-todo-highlight) until 2018, when it appears to have been abandoned.
 > I, ([**jgclark**](https://github.com/jgclark)) then picked it up in mid-2020, using the [significant PR from **vonEdfa** to add regexes](https://github.com/wayou/vscode-todo-highlight/pull/152), and also dealt with some other issues in the original repository. See CHANGELOG.md for more details. However, I'm not really a JavaScript programmer, so I welcome PRs from others to help improve it further. Thanks!
 
 ### Preview
@@ -169,11 +169,15 @@ NB: The `keywords` setting can be overridden in per-language configuration setti
     }
 ```
 
+### Theme Colors
+You can find a full list of theme colors here: https://code.visualstudio.com/api/references/theme-color
+
 ### CSS tips
 This extension uses CSS that deals with color, borders, spacing etc. It is defined in [this VSCode documentation](https://code.visualstudio.com/api/references/vscode-api#DecorationRenderOptions)).  Note that this is not the exactly same as CSS.
 
 For example, the following possibilities may not be so obvious:
-- `"backgroundColor": "rgba(0,0,0,0)"` // setting the last parameter to zero (alpha channel) disables the background colour
+- `"backgroundColor": "rgba(0,0,0,0)"` // setting the last parameter to zero (alpha channel) disables the background color
+- or you can use `"backgroundColor": "editor.background"` to use the current editor's background color
 - use `"before": { "contentText": "⚠️" }` to add text before the highlight
 
 ### History

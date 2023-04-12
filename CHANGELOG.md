@@ -1,6 +1,11 @@
 # Change Log
 To update to the latest version, please use VSCode's own Extensions user interface.
 
+## 2.0.8 - 2023-04-12
+- an interim release that bundles up existing merged PRs, mostly from security updates in dependencies. Including
+  - Include and exclude options (issue #42, thanks to PR #66 by @yuriykis)
+- took several interim uploads before I got the right updated badge format.
+
 ## 2.0.5 - 2021-09-07
 - added some missing auto-completions when working in VSCode's JSON settings
 
