@@ -9,7 +9,7 @@
 		"keyword",
 		"annotation"
 	],
-	"version": "2.0.8",
+	"version": "2.0.9",
 	"publisher": "jgclark",
 	"license": "MIT",
 	"icon": "assets/icon.png",
@@ -134,6 +134,14 @@
 										"type": "string",
 										"description": "The text background color."
 									},
+									"backgroundColorDark": {
+										"type": "string",
+										"description": "The text background color (in dark mode)"
+									},
+									"backgroundColorLight": {
+										"type": "string",
+										"description": "The text background color (in light mode)"
+									},
 									"border": {
 										"type": "string",
 										"description": "The border style for the highlight, as a CSS string."
@@ -197,6 +205,14 @@
 							"type": "string",
 							"description": "The background color for the highlight."
 						},
+						"backgroundColorDark": {
+							"type": "string",
+							"description": "The background color for the highlight (used in dark themes)."
+						},
+						"backgroundColorLight": {
+							"type": "string",
+							"description": "The background color for the highlight (used in light themes)."
+						},
 						"border": {
 							"type": "string",
 							"description": "The border style for the highlight, as a CSS string."
@@ -204,6 +220,14 @@
 						"color": {
 							"type": "string",
 							"markdownDescription": "The text color."
+						},
+						"colorDark": {
+							"type": "string",
+							"markdownDescription": "The text color (used in dark themes)."
+						},
+						"colorLight": {
+							"type": "string",
+							"markdownDescription": "The text color (used in light themes)."
 						},
 						"cursor": {
 							"type": "string",

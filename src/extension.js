@@ -98,6 +98,9 @@ function activate(context) {
 
     function updateDecorations() {
 
+        if (!settings.get('isEnable')) {
+            return;
+        }
         if (!activeEditor || !activeEditor.document) {
             return;
         }
@@ -155,6 +158,7 @@ function activate(context) {
         diagnostics.set(activeEditor.document.uri, problems);
     }
 
+
     function init(settings) {
         var customDefaultStyle = settings.get('defaultStyle');
         keywordsPattern = settings.get('keywordsPattern');
@@ -166,6 +170,10 @@ function activate(context) {
         if (!window.outputChannel) {
             window.outputChannel = window.createOutputChannel('TodoHighlight');
         }
+
+        let isDarkTheme = vscode.window.dark ?? false
+
+        vscode.window.showInformationMessage(`Current theme is ${vscode.window.activeColorTheme} type ${isDarkTheme ? 'dark' : 'light'}`);
 
         decorationTypes = {};
 

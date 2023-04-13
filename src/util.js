@@ -36,18 +36,26 @@ var DEFAULT_STYLE = {
     backgroundColor: "#ffeb3b",
 };
 
+/**
+ * Get the details for each defined highlight, using the DEFAULT_STYLE where necessary.
+ * @param {Object | Array<string>} keywords
+ * @param {Object} customDefaultStyle 
+ * @param {boolean} isCaseSensitive 
+ * @returns {null | boolean | ?}
+ */
 function getAssembledData(keywords, customDefaultStyle, isCaseSensitive) {
     var result = {}, regex = [], reg;
+    // Object.keys(keywords).forEach((v) => {
     keywords.forEach((v) => {
-        v = typeof v == 'string' ? { text: v } : v;
+        v = typeof v === 'string' ? { text: v } : v;
         var text = v.text;
-        if (!text) return;//NOTE: in case of the text is empty
+        if (!text) return; //NOTE: in case of the text is empty
 
         if (!isCaseSensitive) {
             text = text.toUpperCase();
         }
 
-        if (text == 'TODO:' || text == 'FIXME:') {
+        if (text === 'TODO:' || text === 'FIXME:') {
             v = Object.assign({}, DEFAULT_KEYWORDS[text], v);
         }
         v.diagnosticSeverity = SeverityMap[v.diagnosticSeverity]
@@ -85,7 +93,7 @@ function chooseAnnotationType(availableAnnotationTypes) {
 }
 
 //get the include/exclude config
-function getPathes(config) {
+function getPaths(config) {
     return Array.isArray(config) ?
         '{' + config.join(',') + ',' + '}'
         : (typeof config == 'string' ? config : '');
@@ -94,8 +102,8 @@ function getPathes(config) {
 function isFileNameOk(filename) {
 
     var settings = workspace.getConfiguration('todohighlight');
-    var includePatterns = getPathes(settings.get('include')) || '{**/*}';
-    var excludePatterns = getPathes(settings.get('exclude'));
+    var includePatterns = getPaths(settings.get('include')) || '{**/*}';
+    var excludePatterns = getPaths(settings.get('exclude'));
 
     if (minimatch(filename, includePatterns) && !minimatch(filename, excludePatterns)) {
         return true;
@@ -108,8 +116,8 @@ function isFileNameOk(filename) {
 function searchAnnotations(workspaceState, pattern, callback) {
 
     var settings = workspace.getConfiguration('todohighlight');
-    var includePattern = getPathes(settings.get('include')) || '{**/*}';
-    var excludePattern = getPathes(settings.get('exclude'));
+    var includePattern = getPaths(settings.get('include')) || '{**/*}';
+    var excludePattern = getPaths(settings.get('exclude'));
     var limitationForSearch = settings.get('maxFilesForSearch', 5120);
 
     var statusMsg = ` Searching...`;
@@ -161,6 +169,13 @@ function searchAnnotations(workspaceState, pattern, callback) {
     });
 }
 
+/**
+ * Search 'file'. Rest is not clear to me.
+ * @param {*} file 
+ * @param {*} annotations 
+ * @param {*} annotationList 
+ * @param {RegExp} regexp 
+ */
 function searchAnnotationInFile(file, annotations, annotationList, regexp) {
     var fileInUri = file.uri.toString();
     var pathWithoutFile = fileInUri.substring(7, fileInUri.length);
@@ -193,6 +208,13 @@ function searchAnnotationInFile(file, annotations, annotationList, regexp) {
     }
 }
 
+/**
+ * Show all annotations in Output channel
+ * Confusingly also shows err as well??
+ * @param {string ?} err 
+ * @param {?} annotations - Note: not used
+ * @param {?} annotationList
+ */
 function annotationsFound(err, annotations, annotationList) {
     if (err) {
         console.log('todohighlight err:', err);
@@ -206,6 +228,10 @@ function annotationsFound(err, annotations, annotationList) {
     showOutputChannel(annotationList);
 }
 
+/**
+ * Show each item in the 'data' in Output channel
+ * @param {?} data
+ */
 function showOutputChannel(data) {
     if (!window.outputChannel) return;
     window.outputChannel.clear();
@@ -241,6 +267,12 @@ function showOutputChannel(data) {
     window.outputChannel.show();
 }
 
+/**
+ * Get content of 'lineText' that matches 'match' ?
+ * @param {string} lineText 
+ * @param {string} match 
+ * @returns {string}
+ */
 function getContent(lineText, match) {
     return lineText.substring(lineText.indexOf(match[0]), lineText.length);
 };
