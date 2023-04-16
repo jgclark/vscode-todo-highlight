@@ -38,8 +38,7 @@ var DEFAULT_STYLE = {
 
 function getAssembledData(keywords, customDefaultStyle, isCaseSensitive) {
     var result = {}, regex = [], reg;
-    Object.keys(keywords).forEach((v) => {
-    // keywords.forEach((v) => {
+    keywords.forEach((v) => {
         v = typeof v == 'string' ? { text: v } : v;
         var text = v.text;
         if (!text) return;//NOTE: in case of the text is empty
@@ -290,9 +289,18 @@ function escapeRegExp(s) {
     return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
 }
 
+// from https://github.com/Tokimon/es-feature-detection
+const hasLookbehindAssertion = (() => {
+  try {
+    const expression = '/(?<!a)b(?<=b)c/';
+    return (new Function('"use strict";\n' + expression))() !== false; // eslint-disable-line no-new-func
+  } catch {
+    return false;
+  }
+})();
+
 function escapeRegExpGroups(s) {
-    // Lookbehind assertions ("(?<!abc) & (?<=abc)") supported from ECMAScript 2018 and onwards. Native in node.js 9 and up.
-    if (parseFloat(process.version.replace('v', '')) > 9.0) {
+    if (hasLookbehindAssertion) {
         let grpPattern = /(?<!\\)(\()([^?]\w*(?:\\+\w)*)(\))?/g;
         // Make group non-capturing
         return s.replace(grpPattern, '$1?:$2$3');
