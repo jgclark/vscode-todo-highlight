@@ -8,7 +8,7 @@ Sometimes you forget to review the TODOs and NOTEs you've added while coding bef
 
 They can also be set on a per-language basis.
 
-> NB: This extension was [started and maintained by **wayou**](https://github.com/wayou/vscode-todo-highlight) until 2018, when it appears to have been abandoned.
+> NB: This extension was [started and maintained by **wayou**](https://github.com/wayou/vscode-todo-highlight) until 2018, when it was abandoned (at least until late 2021).
 > I, ([**jgclark**](https://github.com/jgclark)) then picked it up in mid-2020, using the [significant PR from **vonEdfa** to add regexes](https://github.com/wayou/vscode-todo-highlight/pull/152), and also dealt with some other issues in the original repository. See CHANGELOG.md for more details. However, I'm not really a JavaScript programmer, so I welcome PRs from others to help improve it further. Thanks!
 
 ### Preview
