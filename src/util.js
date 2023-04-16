@@ -38,8 +38,8 @@ var DEFAULT_STYLE = {
 
 function getAssembledData(keywords, customDefaultStyle, isCaseSensitive) {
     var result = {}, regex = [], reg;
-    // Object.keys(keywords).forEach((v) => {
-    keywords.forEach((v) => {
+    Object.keys(keywords).forEach((v) => {
+    // keywords.forEach((v) => {
         v = typeof v == 'string' ? { text: v } : v;
         var text = v.text;
         if (!text) return;//NOTE: in case of the text is empty
