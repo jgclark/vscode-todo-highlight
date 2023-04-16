@@ -38,7 +38,7 @@ var DEFAULT_STYLE = {
 
 function getAssembledData(keywords, customDefaultStyle, isCaseSensitive) {
     var result = {}, regex = [], reg;
-    keywords.forEach((v) => {
+    Object.keys(keywords).forEach((v) => {
         v = typeof v == 'string' ? { text: v } : v;
         var text = v.text;
         if (!text) return;//NOTE: in case of the text is empty
@@ -217,7 +217,7 @@ function showOutputChannel(data) {
 
     var settings = workspace.getConfiguration('todohighlight');
     var toggleURI = settings.get('toggleURI', false);
-    var platform = os.platform();
+    var platform = os.platform ? os.platform() : 'browser';
 
     data.forEach(function (v, i) {
         // due to an issue of vscode(https://github.com/Microsoft/vscode/issues/586), in order to make file path clickable within the output channel,the file path differs from platform
