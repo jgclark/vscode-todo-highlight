@@ -42,8 +42,7 @@
 	"scripts": {
 		"vscode:prepublish": "webpack --mode production",
 		"webpack": "webpack --mode development",
-		"webpack-dev": "webpack --mode development --watch",
-		"postinstall": "node ./node_modules/vscode/bin/install"
+		"webpack-dev": "webpack --mode development --watch"
 	},
 	"badges": [
 		{
@@ -158,7 +157,12 @@
 									"diagnosticSeverity": {
 										"type": "string",
 										"default": "information",
-										"enum": ["none", "error", "warning", "information"],
+										"enum": [
+											"none",
+											"error",
+											"warning",
+											"information"
+										],
 										"description": "If enabled, set the diagnostic severity in the problems view."
 									}
 								},
@@ -281,13 +285,13 @@
 		}
 	},
 	"devDependencies": {
-		"@types/mocha": "^2.2.32",
 		"@types/node": "^6.0.40",
 		"@types/vscode": "^1.0.0",
+		"@vscode/vsce": "^2.19.0",
 		"eslint": "^7.18.0",
-		"mocha": "^10.1.0",
 		"typescript": "^4.1.2",
-		"webpack-cli": "^4.x.x"
+		"webpack-cli": "^4.x.x",
+		"webpack": "^5.76.0"
 	},
 	"__metadata": {
 		"id": "97a08c5f-6667-4242-a5c5-045dfb6bd4b9",
@@ -295,9 +299,5 @@
 		"publisherId": "47daa402-5396-4346-b7bd-62494d6d63ec"
 	},
 	"dependencies": {
-		"neo-async": "^2.6.2",
-		"test": "^0.6.0",
-		"vsce": "^2.13.0",
-		"webpack": "^5.76.0"
 	}
 }
