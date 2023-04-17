@@ -217,7 +217,7 @@ function showOutputChannel(data) {
 
     var settings = workspace.getConfiguration('todohighlight');
     var toggleURI = settings.get('toggleURI', false);
-    var platform = os.platform();
+    var platform = os.platform ? os.platform() : 'browser';
 
     data.forEach(function (v, i) {
         // due to an issue of vscode(https://github.com/Microsoft/vscode/issues/586), in order to make file path clickable within the output channel,the file path differs from platform
@@ -289,9 +289,18 @@ function escapeRegExp(s) {
     return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
 }
 
+// from https://github.com/Tokimon/es-feature-detection
+const hasLookbehindAssertion = (() => {
+  try {
+    const expression = '/(?<!a)b(?<=b)c/';
+    return (new Function('"use strict";\n' + expression))() !== false; // eslint-disable-line no-new-func
+  } catch {
+    return false;
+  }
+})();
+
 function escapeRegExpGroups(s) {
-    // Lookbehind assertions ("(?<!abc) & (?<=abc)") supported from ECMAScript 2018 and onwards. Native in node.js 9 and up.
-    if (parseFloat(process.version.replace('v', '')) > 9.0) {
+    if (hasLookbehindAssertion) {
         let grpPattern = /(?<!\\)(\()([^?]\w*(?:\\+\w)*)(\))?/g;
         // Make group non-capturing
         return s.replace(grpPattern, '$1?:$2$3');
