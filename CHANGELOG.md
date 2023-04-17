@@ -1,6 +1,9 @@
 # Change Log
 To update to the latest version, please use VSCode's own Extensions user interface.
 
+## 2.1.0 - 2021-09-28
+- added ability to run through VSCode for Web (thanks to PR from @tanhakabir)
+
 ## 2.0.8 - 2023-04-12
 - an interim release that bundles up existing merged PRs, mostly from security updates in dependencies. Including
   - Include and exclude options (issue #42, thanks to PR #66 by @yuriykis)
