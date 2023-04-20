@@ -9,7 +9,7 @@
 		"keyword",
 		"annotation"
 	],
-	"version": "2.0.8",
+	"version": "2.1.0",
 	"publisher": "jgclark",
 	"license": "MIT",
 	"icon": "assets/icon.png",
@@ -158,7 +158,12 @@
 									"diagnosticSeverity": {
 										"type": "string",
 										"default": "information",
-										"enum": ["none", "error", "warning", "information"],
+										"enum": [
+											"none",
+											"error",
+											"warning",
+											"information"
+										],
 										"description": "If enabled, set the diagnostic severity in the problems view."
 									}
 								},
@@ -225,21 +230,39 @@
 					}
 				},
 				"todohighlight.include": {
-					"description": "Glob patterns that defines the files to search for. Only include files you need, DO NOT USE `{**/*.*}` for both performance and to avoid binary files.",
+					"description": "This setting is now not used. Please see 'includedLanguages' instead.",
+					"previous_description": "Glob patterns that defines the files to search for. Only include files you need, DO NOT USE `{**/*.*}` for both performance and to avoid binary files.",
+					"type": "array",
+					"default": [],
+					"items": {
+						"type": "string"
+					},
+					"scope": "resource"
+				},
+				"todohighlight.includedLanguages": {
+					"description": "Optional list of language ids where highlighting will be turned on. If empty, then all open files will be highlighted. (E.g. 'typescript', 'go'.)???",
+					"type": "array",
+					"default": [],
+					"items": {
+						"type": "string"
+					},
+					"scope": "resource"
+				},
+				"todohighlight.excludedFiles": {
+					"description": "Glob pattern that defines files and folders where highlighting will not be turned on.",
 					"type": "array",
 					"default": [
-						"**/*.js",
-						"**/*.jsx",
-						"**/*.ts",
-						"**/*.tsx",
-						"**/*.html",
-						"**/*.css",
-						"**/*.scss",
-						"**/*.php",
-						"**/*.rb",
-						"**/*.txt",
-						"**/*.mdown",
-						"**/*.md"
+						"**/node_modules/**",
+						"**/bower_components/**",
+						"**/dist/**",
+						"**/build/**",
+						"**/.vscode/**",
+						"**/.vscode-test/**",
+						"**/.github/**",
+						"**/_output/**",
+						"**/*.min.*",
+						"**/*.map",
+						"**/.next/**"
 					],
 					"items": {
 						"type": "string"
@@ -247,7 +270,7 @@
 					"scope": "resource"
 				},
 				"todohighlight.exclude": {
-					"description": "Glob pattern that defines files and folders to exclude while listing annotations.",
+					"description": "(Previous name for 'excludedFiles' setting.)",
 					"type": "array",
 					"default": [
 						"**/node_modules/**",
@@ -287,6 +310,7 @@
 		"eslint": "^7.18.0",
 		"mocha": "^10.1.0",
 		"typescript": "^4.1.2",
+		"vscode": "^1.1.37",
 		"webpack-cli": "^4.x.x"
 	},
 	"__metadata": {
