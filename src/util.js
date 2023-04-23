@@ -1,5 +1,3 @@
-
-
 var vscode = require('vscode');
 var os = require("os");
 var minimatch = require('minimatch');
