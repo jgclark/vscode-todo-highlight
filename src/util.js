@@ -107,9 +107,7 @@ function isFileNameOk(filename) {
     if (!minimatch(filename, excludedPatterns)) {
         return true;
     }
-    else {
-        return false;
-    }
+    return false;
 }
 
 
