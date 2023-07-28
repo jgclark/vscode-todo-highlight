@@ -7,3 +7,4 @@ dist/
 .vsixmanifest
 vsc-todo-highlight.code-workspace
 todo-highlight.code-workspace
+.vscode-test-web/

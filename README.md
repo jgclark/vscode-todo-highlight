@@ -36,7 +36,7 @@ The [source code is available on GitHub](https://github.com/jgclark/vscode-todo-
 
 To customize the keywords and other settings, <kbd>command</kbd> + <kbd>,</kbd> (or on Windows / Linux: File -> Preferences -> User Settings) to open the VSCode file `settings.json`.
 
-|                                 | type    | default | description                                                                                                                                                                                                                                                           |
+| Setting                        | Type    | Default | Description                                                                                                                                                                                                                                                           |
 | ------------------------------- | ------- | --------| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | todohighlight.isEnable          | boolean | true    | Toggle the highlight, default is true.                                                                                                                                                                                                                                |
 | todohighlight.enableDiagnostics | boolean | true    | Enable creating diagnostic entries for open files in the problems view. Default is false.                                                                                                                                                                             |
@@ -46,16 +46,8 @@ To customize the keywords and other settings, <kbd>command</kbd> + <kbd>,</kbd> 
 | todohighlight.defaultStyle      | object  | N/A     | Specify the default style for custom keywords, if not specified, build in default style will be applied. [See all available properties on VSCode doc DecorationRenderOptions section](https://code.visualstudio.com/docs/extensionAPI/vscode-api)                     |
 | todohighlight.maxFilesForSearch | number  | 5120    | Max files for searching, mostly you don't need to configure this.                                                                                                                                                                                                     |
 | todohighlight.toggleURI         | boolean | false   | If the file path within the output channel is not clickable, set this to true to toggle the path pattern between `<path>#<line>` and `<path>:<line>:<column>`.                                                                                                        |
-
-<br/>
-
-**Note:** Explicitly specifying `include` or `exclude` patterns will override the default settings, so if you want to add new patterns, and also use the defaults, you will need to include the default patterns as well. Better way to accomplish this would be to open Settings (UI) and "Add Item" in these fields from there at least once, before changing in Settings (JSON).
-<br/>
-
-|                                 | type    | default | description                                                                                                                                                                                                                                                           |
-| ------------------------------- | ------- | --------| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| todohighlight.include           | array   | [<br>`"**/*.js"`,<br>`"**/*.jsx"`,<br>`"**/*.ts"`,<br>`"**/*.tsx",`<br>`"**/*.html"`,<br>`"**/*.php"`,<br>`"**/*.css",`<br>`"**/*.scss"`<br>]                                                                | Glob patterns that defines the files to search for. **Please add other file types you need,** but for performance reasons and to avoid binary files do **not** use `{**/*.*}`. <br> Keep in mind the above note. |
-| todohighlight.exclude           | array   | [<br>`"**/node_modules/**"`,<br>`"**/dist/**",`<br>`"**/bower_components/**"`,<br>`"**/build/**",`<br>`"**/.vscode/**"`,<br>`"**/.github/**"`,<br>`"**/_output/**"`,<br>`"**/*.min.*"`,<br>`"**/*.map"`<br>] | Glob pattern that defines files and folders to exclude while listing annotations. <br> Keep in mind the above note.                                                                                              |
+| todohighlight.includedLanguages  | array   | []                                                                | Optional list of language ids where highlighting will be turned on. If empty, then all open files will be highlighted. (E.g. `["typescript", "go"]`.) |
+| todohighlight.excludedFiles           | array   | [<br>`"**/node_modules/**"`,<br>`"**/dist/**",`<br>`"**/bower_components/**"`,<br>`"**/build/**",`<br>`"**/.vscode/**"`,<br>`"**/.github/**"`,<br>`"**/_output/**"`,<br>`"**/*.min.*"`,<br>`"**/*.map"`<br>] | Glob pattern that defines files and folders where highlighting will not be turned on.<br> **Note:** Explicitly specifying `excludedFiles` patterns will override the default settings, so if you want to add new patterns, and also use the defaults, you will need to include the default patterns as well. The better way to accomplish this is to open Settings (UI) and "Add Item" in these fields from there at least once, before changing in Settings (JSON).  |
 
 An example of a custom configuration, showing a range of the different features:
 
@@ -127,24 +119,9 @@ An example of a custom configuration, showing a range of the different features:
         "isWholeLine": false,
         //other styling properties goes here ... 
     },
-    "todohighlight.include": [
-        "**/*.js",
-        "**/*.jsx",
-        "**/*.ts",
-        "**/*.tsx",
-        "**/*.html",
-        "**/*.php",
-        "**/*.css",
-        "**/*.scss",
-        "**/*.md",
-        "**/*.mmd",
-        "**/*.markdown",
-        "**/*.mdown",
-        "**/*.txt",
-        "**/*.rb",
-        "**/*.go"
+    "todohighlight.includedLanguages": [ 
     ],
-    "todohighlight.exclude": [
+    "todohighlight.excludedFiles": [
         "**/node_modules/**",
         "**/bower_components/**",
         "**/dist/**",

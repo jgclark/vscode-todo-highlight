@@ -20,14 +20,14 @@ var DEFAULT_KEYWORDS = {
         color: '#fff',
         backgroundColor: '#ffbd2a',
         overviewRulerColor: 'rgba(255,189,42,0.8)',
-        diagnosticSeverity: 'error'
+        diagnosticSeverity: 'warning'
     },
     "FIXME:": {
         text: "FIXME:",
         color: '#fff',
         backgroundColor: '#f06292',
         overviewRulerColor: 'rgba(240,98,146,0.8)',
-        diagnosticSeverity: 'warning'
+        diagnosticSeverity: 'error'
     }
 };
 
@@ -85,22 +85,28 @@ function chooseAnnotationType(availableAnnotationTypes) {
 }
 
 //get the include/exclude config
-function getPathes(config) {
+function getPaths(config) {
     return Array.isArray(config) ?
         '{' + config.join(',') + ',' + '}'
         : (typeof config == 'string' ? config : '');
 }
 
+/** 
+ * Should we be active for this file?
+ * Notes:
+ * - V1 - V2.0.5 didn't use 'include' setting
+ * - V2.0.5-2.1.? did use the 'include' setting
+ * - v2.1.0 changed to just use (renamed) 'excludedFiles' setting
+ */ 
 function isFileNameOk(filename) {
 
-    var settings = workspace.getConfiguration('todohighlight');
-    var includePatterns = getPathes(settings.get('include')) || '{**/*}';
-    var excludePatterns = getPathes(settings.get('exclude'));
+    const settings = workspace.getConfiguration('todohighlight');
 
-    if (minimatch(filename, includePatterns) && !minimatch(filename, excludePatterns)) {
+    const excludedPatterns = getPaths(settings.get('excludedFiles') || settings.get('exclude') || '');
+
+    if (!minimatch(filename, excludedPatterns)) {
         return true;
     }
-
     return false;
 }
 
@@ -108,8 +114,8 @@ function isFileNameOk(filename) {
 function searchAnnotations(workspaceState, pattern, callback) {
 
     var settings = workspace.getConfiguration('todohighlight');
-    var includePattern = getPathes(settings.get('include')) || '{**/*}';
-    var excludePattern = getPathes(settings.get('exclude'));
+    var includePattern = getPaths(settings.get('include')) || '{**/*}';
+    var excludePattern = getPaths(settings.get('exclude'));
     var limitationForSearch = settings.get('maxFilesForSearch', 5120);
 
     var statusMsg = ` Searching...`;

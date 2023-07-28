@@ -102,8 +102,17 @@ function activate(context) {
             return;
         }
 
-        // the function isFileNameOk checks for the include and exclude settings
+        // check if this file/folder isn't on the exclude settings list
         if (!util.isFileNameOk(activeEditor.document.fileName)) {
+            return;
+        }
+        // check if we have a list of languages to be used for. If not: use on all languages.
+        const thisFileLangId = activeEditor.document.languageId;
+        console.log(`thisFileLangId: ${thisFileLangId}`);
+        const includedLanguages = settings.get('includedLanguages') || [];
+        console.log(`includedLanguages: ${String(includedLanguages)} (${typeof includedLanguages})`);
+        if (includedLanguages && includedLanguages.length > 0 && !includedLanguages.includes(thisFileLangId)) {
+            console.log(`updateDecorations not wanted on lang ${thisFileLangId} for file ${activeEditor.document.fileName}`);
             return;
         }
 

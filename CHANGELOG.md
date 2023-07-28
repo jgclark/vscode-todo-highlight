@@ -1,6 +1,12 @@
 # Change Log
 To update to the latest version, please use VSCode's own Extensions user interface.
 
+## 2.1.0 beta - 2023-04-21
+- a private beta release to check changes made for issue [#72](https://github.com/jgclark/vscode-todo-highlight/issues/72):
+  - `todohighlight.include` is now dropped.
+  - `todohighlight.includedLanguages` is now included as an optional list of languageIds where highlighting will be turned on (e.g. `["typescript", "go"]`). If empty, then all open files will be highlighted. 
+  - `todohighlight.exclude` is now called `todohighlight.excludedFiles`. It remains an array of strings of glob pattern that defines files and folders where highlighting will not be turned on.
+
 ## 2.0.8 - 2023-04-12
 - an interim release that bundles up existing merged PRs, mostly from security updates in dependencies. Including
   - Include and exclude options (issue #42, thanks to PR #66 by @yuriykis)
