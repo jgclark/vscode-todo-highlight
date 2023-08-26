@@ -1,9 +1,9 @@
 .DS_Store
-.vscode/spellright.dict
 HOWTO-publish.md
-.vscode/tasks.json
+.vscode-test-web/**/*.*
+.vscode/**/*.*
+.history/**/*.*
 node_modules/
 dist/
 .vsixmanifest
 vsc-todo-highlight.code-workspace
-todo-highlight.code-workspace
