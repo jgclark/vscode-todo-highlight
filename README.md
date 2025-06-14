@@ -54,8 +54,9 @@ You can override the look by customizing the detailed settings for each **Keywor
 - "diagnosticSeverity": controls whether to show a "none", <!--"hint", -->"information" or "error" marker in the overview ruler for each instance of this keyword. Appropriate ones will also be shown in the PROBLEMS panel.
 - "color": colour name (e.g. "green") or other colour code (e.g. "rgba(255,120,0,50)")
 - "backgroundColor": as for `color` above. Note: setting the last parameter to zero (alpha channel) disables the background colour.
-- "border": CSS codes (e.g. "1px solid red" or "none")
+- "border": CSS string to put a border around the text (e.g. "1px solid red" or "none")
 - "borderRadius": e.g. "2px"
+- "outline": CSS string to put an outline outside the border (e.g. "1px solid red" or "none") -- _Note: this is unlikely to be useful, as it will likely overlap with text around the highlight_
 - "overviewRulerColor": colour name or colour code to use for this line in the overview ruler
 - "cursor": e.g. "pointer"
 - "isWholeLine": whether the whole line is to be highlighted, or just the matching characters
@@ -193,6 +194,16 @@ The `keywords` setting can be overridden in per-language configuration settings.
             }
         ]
     }
+```
+
+### VSCode's own mechanism
+If the type of line or part of a line that you want to change is identifiable by VSCode through a language server -- e.g. comment lines -- then you can use its mechanism as well.
+
+For example to change all comment lines (of all language types) include this in your relevant `settings.json` file:
+```json
+"editor.tokenColorCustomizations": {
+    "comments": "#82abf7d1",
+}
 ```
 
 ### History

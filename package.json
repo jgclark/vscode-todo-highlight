@@ -9,7 +9,7 @@
 		"keyword",
 		"annotation"
 	],
-	"version": "2.0.8",
+	"version": "2.0.9",
 	"publisher": "jgclark",
 	"license": "MIT",
 	"icon": "assets/icon.png",
@@ -172,12 +172,16 @@
 						{
 							"text": "TODO:",
 							"color": "#fff",
+							"border": "1px solid #ffbd2a",
+							"borderRadus": "4px",
 							"backgroundColor": "#ffbd2a",
 							"overviewRulerColor": "rgba(255,189,42,0.8)"
 						},
 						{
 							"text": "FIXME:",
 							"color": "#fff",
+							"border": "1px solid #f06292",
+							"borderRadus": "4px",
 							"backgroundColor": "#f06292",
 							"overviewRulerColor": "rgba(240,98,146,0.8)"
 						}
@@ -235,8 +239,18 @@
 						"**/*.html",
 						"**/*.css",
 						"**/*.scss",
+						"**/*.less",
 						"**/*.php",
 						"**/*.rb",
+						"**/*.go",
+						"**/*.c",
+						"**/*.cpp",
+						"**/*.h",
+						"**/*.py",
+						"**/*.java",
+						"**/*.jsonc",
+						"**/*.sh",
+						"**/*.awk",
 						"**/*.txt",
 						"**/*.mdown",
 						"**/*.md"

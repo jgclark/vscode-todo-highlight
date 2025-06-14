@@ -16,28 +16,31 @@ var SeverityMap = {
 
 var DEFAULT_KEYWORDS = {
     "TODO:": {
+        // TEST: leaving just the 'text' property, to allow overriding the style for all keywords
         text: "TODO:",
-        color: '#fff',
-        backgroundColor: '#ffbd2a',
-        overviewRulerColor: 'rgba(255,189,42,0.8)',
-        diagnosticSeverity: 'error'
+        // color: '#fff',
+        // backgroundColor: '#ffbd2a',
+        // overviewRulerColor: 'rgba(255,189,42,0.8)',
+        // diagnosticSeverity: 'error'
     },
     "FIXME:": {
         text: "FIXME:",
-        color: '#fff',
-        backgroundColor: '#f06292',
-        overviewRulerColor: 'rgba(240,98,146,0.8)',
-        diagnosticSeverity: 'warning'
+        // TEST: leaving just the 'text' property, to allow overriding the style for all keywords
+        // color: '#fff',
+        // backgroundColor: '#f06292',
+        // overviewRulerColor: 'rgba(240,98,146,0.8)',
+        // diagnosticSeverity: 'warning'
     }
 };
 
-var DEFAULT_STYLE = {
-    color: "#2196f3",
-    backgroundColor: "#ffeb3b",
+const DEFAULT_STYLE = {
+// TEST: turning this off entirely
+// color: "#2196f3",
+// backgroundColor: "#ffeb3b",
 };
 
 function getAssembledData(keywords, customDefaultStyle, isCaseSensitive) {
-    var result = {}, regex = [], reg;
+    let result = {}, regex = [], reg;
     keywords.forEach((v) => {
         v = typeof v == 'string' ? { text: v } : v;
         var text = v.text;
@@ -85,7 +88,7 @@ function chooseAnnotationType(availableAnnotationTypes) {
 }
 
 //get the include/exclude config
-function getPathes(config) {
+function getPaths(config) {
     return Array.isArray(config) ?
         '{' + config.join(',') + ',' + '}'
         : (typeof config == 'string' ? config : '');
@@ -93,9 +96,9 @@ function getPathes(config) {
 
 function isFileNameOk(filename) {
 
-    var settings = workspace.getConfiguration('todohighlight');
-    var includePatterns = getPathes(settings.get('include')) || '{**/*}';
-    var excludePatterns = getPathes(settings.get('exclude'));
+    const settings = workspace.getConfiguration('todohighlight');
+    const includePatterns = getPaths(settings.get('include')) || '{**/*}';
+    const excludePatterns = getPaths(settings.get('exclude'));
 
     if (minimatch(filename, includePatterns) && !minimatch(filename, excludePatterns)) {
         return true;
@@ -107,12 +110,12 @@ function isFileNameOk(filename) {
 
 function searchAnnotations(workspaceState, pattern, callback) {
 
-    var settings = workspace.getConfiguration('todohighlight');
-    var includePattern = getPathes(settings.get('include')) || '{**/*}';
-    var excludePattern = getPathes(settings.get('exclude'));
-    var limitationForSearch = settings.get('maxFilesForSearch', 5120);
+    const settings = workspace.getConfiguration('todohighlight');
+    const includePattern = getPaths(settings.get('include')) || '{**/*}';
+    const excludePattern = getPaths(settings.get('exclude'));
+    const limitationForSearch = settings.get('maxFilesForSearch', 5120);
 
-    var statusMsg = ` Searching...`;
+    const statusMsg = ` Searching...`;
 
     window.processing = true;
 
@@ -162,23 +165,23 @@ function searchAnnotations(workspaceState, pattern, callback) {
 }
 
 function searchAnnotationInFile(file, annotations, annotationList, regexp) {
-    var fileInUri = file.uri.toString();
-    var pathWithoutFile = fileInUri.substring(7, fileInUri.length);
+    const fileInUri = file.uri.toString();
+    const pathWithoutFile = fileInUri.substring(7, fileInUri.length);
 
-    for (var line = 0; line < file.lineCount; line++) {
-        var lineText = file.lineAt(line).text;
-        var match = lineText.match(regexp);
+    for (let line = 0; line < file.lineCount; line++) {
+        const lineText = file.lineAt(line).text;
+        const match = lineText.match(regexp);
         if (match !== null) {
             if (!annotations.hasOwnProperty(pathWithoutFile)) {
                 annotations[pathWithoutFile] = [];
             }
-            var content = getContent(lineText, match);
+            let content = getContent(lineText, match);
             if (content.length > 500) {
                 content = content.substring(0, 500).trim() + '...';
             }
-            var locationInfo = getLocationInfo(fileInUri, pathWithoutFile, lineText, line, match);
+            const locationInfo = getLocationInfo(fileInUri, pathWithoutFile, lineText, line, match);
 
-            var annotation = {
+            const annotation = {
                 uri: locationInfo.uri,
                 label: content,
                 detail: locationInfo.relativePath,
@@ -200,8 +203,8 @@ function annotationsFound(err, annotations, annotationList) {
         return;
     }
 
-    var resultNum = annotationList.length;
-    var tooltip = resultNum + ' result(s) found';
+    const resultNum = annotationList.length;
+    const tooltip = resultNum + ' result(s) found';
     setStatusMsg(defaultIcon, resultNum, tooltip);
     showOutputChannel(annotationList);
 }
@@ -215,18 +218,18 @@ function showOutputChannel(data) {
         return;
     }
 
-    var settings = workspace.getConfiguration('todohighlight');
-    var toggleURI = settings.get('toggleURI', false);
-    var platform = os.platform();
+    const settings = workspace.getConfiguration('todohighlight');
+    const toggleURI = settings.get('toggleURI', false);
+    const platform = os.platform();
 
     data.forEach(function (v, i) {
         // due to an issue of vscode(https://github.com/Microsoft/vscode/issues/586), in order to make file path clickable within the output channel,the file path differs from platform
-        var patternA = '#' + (i + 1) + '\t' + v.uri + '#' + (v.lineNum + 1);
-        var patternB = '#' + (i + 1) + '\t' + v.uri + ':' + (v.lineNum + 1) + ':' + (v.startCol + 1);
-        var patterns = [patternA, patternB];
+        const patternA = '#' + (i + 1) + '\t' + v.uri + '#' + (v.lineNum + 1);
+        const patternB = '#' + (i + 1) + '\t' + v.uri + ':' + (v.lineNum + 1) + ':' + (v.startCol + 1);
+        const patterns = [patternA, patternB];
 
         //for windows
-        var patternType = 0;
+        let patternType = 0;
         if (platform == "linux" || platform == "darwin") {
             // for linux & mac
             patternType = 1;
@@ -246,11 +249,11 @@ function getContent(lineText, match) {
 };
 
 function getLocationInfo(fileInUri, pathWithoutFile, lineText, line, match) {
-    var rootPath = workspace.rootPath + '/';
-    var outputFile = pathWithoutFile.replace(rootPath, '');
-    var startCol = lineText.indexOf(match[0]);
-    var endCol = lineText.length;
-    var location = outputFile + ' ' + (line + 1) + ':' + (startCol + 1);
+    const rootPath = workspace.rootPath + '/';
+    const outputFile = pathWithoutFile.replace(rootPath, '');
+    const startCol = lineText.indexOf(match[0]);
+    const endCol = lineText.length;
+    const location = outputFile + ' ' + (line + 1) + ':' + (startCol + 1);
 
     return {
         uri: fileInUri,
@@ -262,7 +265,7 @@ function getLocationInfo(fileInUri, pathWithoutFile, lineText, line, match) {
 };
 
 function createStatusBarItem() {
-    var statusBarItem = window.createStatusBarItem(vscode.StatusBarAlignment.Left);
+    const statusBarItem = window.createStatusBarItem(vscode.StatusBarAlignment.Left);
     statusBarItem.text = defaultIcon + defaultMsg;
     statusBarItem.tooltip = 'List annotations';
     statusBarItem.command = 'todohighlight.showOutputChannel';
