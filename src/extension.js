@@ -171,6 +171,13 @@ function activate(context) {
             window.outputChannel = window.createOutputChannel('TodoHighlight');
         }
 
+        // Dispose of old decoration types before creating new ones
+        if (decorationTypes) {
+            Object.keys(decorationTypes).forEach(key => {
+                decorationTypes[key].dispose();
+            });
+        }
+
         decorationTypes = {};
 
         if (keywordsPattern.trim()) {
