@@ -12,11 +12,15 @@ var workspace = vscode.workspace;
 function activate(context) {
 
     var timeout = null;
-    var activeEditor = window.activeTextEditor;
+    let activeEditor = window.activeTextEditor;
     var isCaseSensitive, assembledData, decorationTypes, pattern, styleForRegExp, keywordsPattern;
-    var workspaceState = context.workspaceState;
+    const workspaceState = context.workspaceState;
+    const currentDocument = vscode.window.activeTextEditor.document;
 
-    var settings = workspace.getConfiguration('todohighlight');
+    // Get the configuration
+    // let settings = workspace.getConfiguration('todohighlight');
+    // Get the configuration for the current document (TEST: hoping this helps gives us multi-root support)
+    let settings = workspace.getConfiguration('todohighlight', currentDocument.uri);
 
     init(settings);
 
@@ -46,7 +50,7 @@ function activate(context) {
     }));
 
     context.subscriptions.push(vscode.commands.registerCommand('todohighlight.showOutputChannel', function () {
-        var annotationList = workspaceState.get('annotationList', []);
+        const annotationList = workspaceState.get('annotationList', []);
         util.showOutputChannel(annotationList);
     }));
 
@@ -107,25 +111,25 @@ function activate(context) {
             return;
         }
 
-        var problems = [];
-        var postDiagnostics = settings.get('isEnable') && settings.get('enableDiagnostics');
+        let problems = [];
+        const postDiagnostics = settings.get('isEnable') && settings.get('enableDiagnostics');
 
-        var text = activeEditor.document.getText();
-        var matches = {}, match;
+        const text = activeEditor.document.getText();
+        let matches = {}, match;
         while (match = pattern.exec(text)) {
-            var startPos = activeEditor.document.positionAt(match.index);
-            var endPos = activeEditor.document.positionAt(match.index + match[0].length);
+            const startPos = activeEditor.document.positionAt(match.index);
+            const endPos = activeEditor.document.positionAt(match.index + match[0].length);
 
-            var decoration = {
+            const decoration = {
                 range: new vscode.Range(startPos, endPos)
             };
 
-            var matchedValue = match[0];
+            let matchedValue = match[0];
             let patternIndex = match.slice(1).indexOf(matchedValue);
             matchedValue = Object.keys(decorationTypes)[patternIndex] || matchedValue;
 
             if (postDiagnostics) {
-                var problem = createDiagnostic(activeEditor.document, decoration.range, match, matchedValue);
+                const problem = createDiagnostic(activeEditor.document, decoration.range, match, matchedValue);
                 if (problem) {
                     problems.push(problem);
                 }
@@ -147,8 +151,8 @@ function activate(context) {
         }
 
         Object.keys(decorationTypes).forEach(v => {
-            var rangeOption = settings.get('isEnable') && matches[v] ? matches[v] : [];
-            var decorationType = decorationTypes[v];
+            const rangeOption = settings.get('isEnable') && matches[v] ? matches[v] : [];
+            const decorationType = decorationTypes[v];
             activeEditor.setDecorations(decorationType, rangeOption);
         })
 
@@ -156,7 +160,7 @@ function activate(context) {
     }
 
     function init(settings) {
-        var customDefaultStyle = settings.get('defaultStyle');
+        const customDefaultStyle = settings.get('defaultStyle');
         keywordsPattern = settings.get('keywordsPattern');
         isCaseSensitive = settings.get('isCaseSensitive', true);
 
@@ -165,6 +169,13 @@ function activate(context) {
         }
         if (!window.outputChannel) {
             window.outputChannel = window.createOutputChannel('TodoHighlight');
+        }
+
+        // Dispose of old decoration types before creating new ones
+        if (decorationTypes) {
+            Object.keys(decorationTypes).forEach(key => {
+                decorationTypes[key].dispose();
+            });
         }
 
         decorationTypes = {};
