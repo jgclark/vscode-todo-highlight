@@ -39,6 +39,13 @@ const DEFAULT_STYLE = {
 // backgroundColor: "#ffeb3b",
 };
 
+/**
+ * Assembles keyword configuration into a lookup map with merged styles and default keywords.
+ * @param {Array<string|object>} keywords - Keyword strings or objects with text/regex/style properties
+ * @param {object} customDefaultStyle - User-defined default style applied to all keywords
+ * @param {boolean} isCaseSensitive - Whether keyword keys should be uppercased
+ * @returns {object} Map of keyword text to merged style/regex configuration
+ */
 function getAssembledData(keywords, customDefaultStyle, isCaseSensitive) {
     let result = {}, regex = [], reg;
     keywords.forEach((v) => {
@@ -83,17 +90,31 @@ function getAssembledData(keywords, customDefaultStyle, isCaseSensitive) {
     return result;
 }
 
+/**
+ * Prompts the user to pick an annotation type from a list.
+ * @param {string[]} availableAnnotationTypes - Annotation types to choose from
+ * @returns {Thenable<string|undefined>} Selected annotation type, or undefined if dismissed
+ */
 function chooseAnnotationType(availableAnnotationTypes) {
     return window.showQuickPick(availableAnnotationTypes, {});
 }
 
-//get the include/exclude config
+/**
+ * Formats include/exclude path config into a glob pattern string.
+ * @param {string|string[]|undefined} config - Path pattern(s) from settings
+ * @returns {string} Brace-wrapped glob pattern or raw string
+ */
 function getPaths(config) {
     return Array.isArray(config)
         ? `{${config.join(',')},}`
         : (typeof config === 'string' ? config : '');
 }
 
+/**
+ * Checks whether a file path matches include/exclude glob settings.
+ * @param {string} filename - Absolute or workspace-relative file path
+ * @returns {boolean} True if the file should be processed
+ */
 function isFileNameOk(filename) {
     const settings = workspace.getConfiguration('todohighlight');
     const includePatterns = getPaths(settings.get('include')) || '{**/*}';
@@ -107,6 +128,12 @@ function isFileNameOk(filename) {
 }
 
 
+/**
+ * Searches workspace files for annotations matching a regex pattern.
+ * @param {vscode.Memento} workspaceState - Extension workspace state for storing results
+ * @param {RegExp} pattern - Pattern to match annotation keywords
+ * @param {function(Error|null, object=, object[]=): void} callback - Called when search completes or fails
+ */
 function searchAnnotations(workspaceState, pattern, callback) {
     const settings = workspace.getConfiguration('todohighlight');
     const includePattern = getPaths(settings.get('include')) || '{**/*}';
@@ -132,6 +159,7 @@ function searchAnnotations(workspaceState, pattern, callback) {
             annotations = {},
             annotationList = [];
 
+        /** Advances search progress and finalizes results when all files are processed or cancelled. */
         function file_iterated() {
             times++;
             progress = Math.floor(times / totalFiles * 100);
@@ -162,6 +190,13 @@ function searchAnnotations(workspaceState, pattern, callback) {
     });
 }
 
+/**
+ * Scans a single file for regex matches and appends results to annotation collections.
+ * @param {vscode.TextDocument} file - Document to search
+ * @param {object} annotations - Map of file paths to annotation arrays (mutated)
+ * @param {object[]} annotationList - Flat list of all annotations (mutated)
+ * @param {RegExp} regexp - Pattern to match
+ */
 function searchAnnotationInFile(file, annotations, annotationList, regexp) {
     const fileInUri = file.uri.toString();
     const pathWithoutFile = fileInUri.substring(7, fileInUri.length);
@@ -194,6 +229,12 @@ function searchAnnotationInFile(file, annotations, annotationList, regexp) {
     }
 }
 
+/**
+ * Callback handler that updates status bar and output channel after a workspace search.
+ * @param {Error|null} err - Search error, if any
+ * @param {object} [annotations] - Map of file paths to annotation arrays
+ * @param {object[]} [annotationList] - Flat list of annotations
+ */
 function annotationsFound(err, annotations, annotationList) {
     if (err) {
         console.log('todohighlight err:', err);
@@ -207,6 +248,10 @@ function annotationsFound(err, annotations, annotationList) {
     showOutputChannel(annotationList);
 }
 
+/**
+ * Renders annotation search results in the output channel with clickable file links.
+ * @param {object[]} data - Annotation objects with uri, label, lineNum, startCol
+ */
 function showOutputChannel(data) {
     if (!window.outputChannel) return;
     window.outputChannel.clear();
@@ -242,10 +287,25 @@ function showOutputChannel(data) {
     window.outputChannel.show();
 }
 
+/**
+ * Extracts annotation text from a line starting at the matched keyword.
+ * @param {string} lineText - Full text of the line
+ * @param {RegExpMatchArray} match - Regex match result
+ * @returns {string} Substring from the match through end of line
+ */
 function getContent(lineText, match) {
     return lineText.substring(lineText.indexOf(match[0]), lineText.length);
 };
 
+/**
+ * Builds location metadata for an annotation match.
+ * @param {string} fileInUri - File URI string
+ * @param {string} pathWithoutFile - File path without file:// prefix
+ * @param {string} lineText - Full text of the matched line
+ * @param {number} line - Zero-based line index
+ * @param {RegExpMatchArray} match - Regex match result
+ * @returns {{uri: string, absPath: string, relativePath: string, startCol: number, endCol: number}}
+ */
 function getLocationInfo(fileInUri, pathWithoutFile, lineText, line, match) {
     const rootPath = workspace.rootPath + '/';
     const outputFile = pathWithoutFile.replace(rootPath, '');
@@ -262,6 +322,10 @@ function getLocationInfo(fileInUri, pathWithoutFile, lineText, line, match) {
     };
 };
 
+/**
+ * Creates and configures the extension status bar item.
+ * @returns {vscode.StatusBarItem} Status bar item bound to showOutputChannel command
+ */
 function createStatusBarItem() {
     const statusBarItem = window.createStatusBarItem(vscode.StatusBarAlignment.Left);
     statusBarItem.text = defaultIcon + defaultMsg;
@@ -270,12 +334,22 @@ function createStatusBarItem() {
     return statusBarItem;
 };
 
+/**
+ * Resets status bar state and logs an error during workspace search.
+ * @param {Error|string} err - Error to log
+ */
 function errorHandler(err) {
     window.processing = true;
     setStatusMsg(defaultIcon, defaultMsg);
     console.log('todohighlight err:', err);
 }
 
+/**
+ * Updates the status bar text, optional tooltip, and shows the item.
+ * @param {string} icon - Codicon or text prefix for the status bar
+ * @param {string} msg - Message displayed in the status bar
+ * @param {string} [tooltip] - Optional tooltip text
+ */
 function setStatusMsg(icon, msg, tooltip) {
     if (window.statusBarItem) {
         window.statusBarItem.text = `${icon} ${msg}` || '';
@@ -286,21 +360,34 @@ function setStatusMsg(icon, msg, tooltip) {
     }
 }
 
+/**
+ * Escapes special regex characters in a plain string.
+ * @param {string} s - String to escape
+ * @returns {string} Regex-safe string
+ */
 function escapeRegExp(s) {
     return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
 }
 
-// Wrap a keyword's regex pattern with word boundaries so that only whole words
-// are matched (e.g. so `BUG:` does not also match the `BUG:` inside `DEBUG:`).
-// A `\b` is only added on the side where the keyword starts/ends with a word
-// character, otherwise the boundary would never match (e.g. the `:` at the end
-// of `TODO:` is not a word character). For issue #104.
+/**
+ * Wraps a keyword regex pattern with word boundaries so only whole words match.
+ * A `\b` is only added on sides where the keyword starts/ends with a word character
+ * (e.g. so `BUG:` does not also match the `BUG:` inside `DEBUG:`). For issue #104.
+ * @param {string} pattern - Escaped regex pattern for the keyword
+ * @param {string} keyword - Original keyword text
+ * @returns {string} Pattern with optional leading/trailing word boundaries
+ */
 function wholeWordPattern(pattern, keyword) {
     const prefix = /^\w/.test(keyword) ? '\\b' : ''
     const suffix = /\w$/.test(keyword) ? '\\b' : ''
     return prefix + pattern + suffix
 }
 
+/**
+ * Converts capturing groups in a regex pattern to non-capturing groups (Node.js 10+).
+ * @param {string} s - Regex pattern string
+ * @returns {string} Pattern with non-capturing groups
+ */
 function escapeRegExpGroups(s) {
     // Lookbehind assertions ("(?<!abc) & (?<=abc)") supported from ECMAScript 2018 and onwards. Native in node.js 9 and up.
     if (parseFloat(process.version.replace('v', '')) > 9.0) {
@@ -312,6 +399,11 @@ function escapeRegExpGroups(s) {
     }
 }
 
+/**
+ * Legacy fallback for escapeRegExpGroups on Node.js 9 and below.
+ * @param {string} s - Regex pattern string
+ * @returns {string} Pattern with unsupported lookbehinds removed and non-capturing groups
+ */
 function escapeRegExpGroupsLegacy(s) {
     return s.replace(/\(\?<[=|!][^)]*\)/g, '') // Remove any unsupported lookbehinds
         .replace(/((?:[^\\]{1}|^)(?:(?:[\\]{2})+)?)(\((?!\?[:|=|!]))([^)]*)(\))/g, '$1$2?:$3$4'); // Make all groups non-capturing

@@ -9,6 +9,10 @@ var util = require('./util');
 var window = vscode.window;
 var workspace = vscode.workspace;
 
+/**
+ * Activates the Todo Highlight extension: registers commands, listeners, and decoration updates.
+ * @param {vscode.ExtensionContext} context - Extension activation context
+ */
 function activate(context) {
     var timeout = null;
     let activeEditor = window.activeTextEditor;
@@ -87,6 +91,14 @@ function activate(context) {
         triggerUpdateDecorations();
     }, null, context.subscriptions);
 
+    /**
+     * Creates a diagnostic for a matched annotation when severity is configured.
+     * @param {vscode.TextDocument} document - Document containing the match
+     * @param {vscode.Range} range - Range of the matched keyword
+     * @param {RegExpMatchArray} match - Regex match result
+     * @param {string} matchedValue - Resolved keyword key for style/severity lookup
+     * @returns {vscode.Diagnostic|undefined} Diagnostic if severity is set
+     */
     function createDiagnostic(document, range, match, matchedValue) {
         var lineText = document.lineAt(range.start).text;
         var content = util.getContent(lineText, match);
@@ -99,6 +111,7 @@ function activate(context) {
         }
     }
 
+    /** Finds annotation matches in the active editor and applies decorations and diagnostics. */
     function updateDecorations() {
         if (!activeEditor || !activeEditor.document) {
             return;
@@ -157,6 +170,10 @@ function activate(context) {
         diagnostics.set(activeEditor.document.uri, problems);
     }
 
+    /**
+     * Loads settings, (re)creates decoration types, and builds the search regex pattern.
+     * @param {vscode.WorkspaceConfiguration} settings - todohighlight configuration
+     */
     function init(settings) {
         const customDefaultStyle = settings.get('defaultStyle');
         keywordsPattern = settings.get('keywordsPattern');
@@ -229,6 +246,7 @@ function activate(context) {
         }
     }
 
+    /** Debounces decoration updates on the next tick to batch rapid editor changes. */
     function triggerUpdateDecorations() {
         timeout && clearTimeout(timeout);
         timeout = setTimeout(updateDecorations, 0);
