@@ -10,10 +10,9 @@ var window = vscode.window;
 var workspace = vscode.workspace;
 
 function activate(context) {
-
     var timeout = null;
     let activeEditor = window.activeTextEditor;
-    var isCaseSensitive, assembledData, decorationTypes, pattern, styleForRegExp, keywordsPattern;
+    var isCaseSensitive, assembledData, decorationTypes, pattern, styleForRegExp, keywordsPattern, wholeWordMatch;
     const workspaceState = context.workspaceState;
     const currentDocument = vscode.window.activeTextEditor.document;
 
@@ -81,7 +80,7 @@ function activate(context) {
     workspace.onDidChangeConfiguration(function () {
         settings = workspace.getConfiguration('todohighlight');
 
-        //NOTE: if disabled, do not re-initialize the data or we will not be able to clear the style immediatly via 'toggle highlight' command
+        // If disabled, do not re-initialize the data or we will not be able to clear the style immediatly via 'toggle highlight' command
         if (!settings.get('isEnable')) return;
 
         init(settings);
@@ -101,7 +100,6 @@ function activate(context) {
     }
 
     function updateDecorations() {
-
         if (!activeEditor || !activeEditor.document) {
             return;
         }
@@ -163,6 +161,7 @@ function activate(context) {
         const customDefaultStyle = settings.get('defaultStyle');
         keywordsPattern = settings.get('keywordsPattern');
         isCaseSensitive = settings.get('isCaseSensitive', true);
+        wholeWordMatch = settings.get('wholeWordMatch', false);
 
         if (!window.statusBarItem) {
             window.statusBarItem = util.createStatusBarItem();
@@ -207,8 +206,15 @@ function activate(context) {
 
             // Give each keyword a group in the pattern
             pattern = Object.keys(assembledData).map((v) => {
+                // A per-keyword `wholeWord` setting overrides the global `wholeWordMatch`
+                const useWholeWord = assembledData[v].wholeWord !== undefined ? assembledData[v].wholeWord : wholeWordMatch;
+
                 if (!assembledData[v].regex) {
-                    return `(${util.escapeRegExp(v)})`;
+                    let p = util.escapeRegExp(v);
+                    if (useWholeWord) {
+                        p = util.wholeWordPattern(p, v);
+                    }
+                    return `(${p})`;
                 }
 
                 let p = assembledData[v].regex.pattern || v;
@@ -221,7 +227,6 @@ function activate(context) {
         if (isCaseSensitive) {
             pattern = new RegExp(pattern, 'g');
         }
-
     }
 
     function triggerUpdateDecorations() {

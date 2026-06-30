@@ -39,6 +39,7 @@ The [source code is available on GitHub](https://github.com/jgclark/vscode-todo-
 | todohighlight.enableDiagnostics | boolean | false    | Enable creating diagnostic entries for open files in the problems view. Default is false.                                                                                                                                                                             |
 | todohighlight.isEnable          | boolean | true                                                                                                                                                                                                         | Toggle the highlight, default is true.                                                                                                                                                                                                                                                                                                                                                           |
 | todohighlight.isCaseSensitive   | boolean | true                                                                                                                                                                                                         | Whether the keywords are case sensitive or not.                                                                                                                                                                                                                                                                                                                                                  |
+| todohighlight.wholeWordMatch    | boolean | false                                                                                                                                                                                                        | When enabled, plain-text keywords are only highlighted when they appear as whole words (e.g. `BUG:` no longer matches the `BUG:` inside `DEBUG:`). Can be overridden per keyword with the `wholeWord` property. Keywords using a custom `regex` are not affected.                                                                                                                                   |
 | todohighlight.keywords          | array   | N/A                                                                                                                                                                                                          | An array of keywords that will be highlighted. You can also specify the style for each keyword here, and a more advanced regex to detect the item to highlight. See [section and examples below](#configuration-for-each-keyword) for details                                                                                                                                                                                                                                           |
 | todohighlight.keywordsPattern   | string  | N/A                                                                                                                                                                                                          | Specify keywords via regex instead of `todohighlight.keywords` one by one. NB: if this is present, `todohighlight.keywords` will be ignored. Remember to escape the backslash if there's any in your regex (using `\\` (double backslash) instead of single backslash).                                                                                                                            |
 | todohighlight.defaultStyle      | object  | N/A                                                                                                                                                                                                          | Specify the default style for custom keywords, if not specified, build in default style will be applied. [See all available properties on VSCode doc DecorationRenderOptions section](https://code.visualstudio.com/docs/extensionAPI/vscode-api)                                                                                                                                                |
@@ -60,6 +61,7 @@ You can override the look by customizing the detailed settings for each **Keywor
 - "overviewRulerColor": colour name or colour code to use for this line in the overview ruler
 - "cursor": e.g. "pointer"
 - "isWholeLine": whether the whole line is to be highlighted, or just the matching characters
+- "wholeWord": whether this keyword is only highlighted when it appears as a whole word (e.g. `BUG:` will not match inside `DEBUG:`). Overrides the global `todohighlight.wholeWordMatch` setting for this keyword. Has no effect when a custom `regex` is supplied.
 - "before": { "contentText": "..." } -- adds text before the highlight. However, note that VSCode may well decide to add another copy of this when moving between open files, so it may have limited value.
 - "after": { "contentText": "..." } -- similarly, adds text after the highlight.
 
@@ -73,12 +75,22 @@ An example of a custom configuration, showing a range of the different features:
 {
     "todohighlight.isEnable": true,
     "todohighlight.isCaseSensitive": true,
+    "todohighlight.wholeWordMatch": false, // when true, plain-text keywords only match whole words (e.g. `BUG:` won't match inside `DEBUG:`)
     "todohighlight.maxFilesForSearch": 5120,
     "todohighlight.toggleURI": false,
 
     "todohighlight.keywords": [
         "FIXME:", // without further details, this will use the defaultStyle
         "REVIEW:", // as will this
+
+        {
+            "text": "BUG:", // only highlight `BUG:` as a whole word, so `DEBUG:` is left alone
+            "wholeWord": true,
+            "color": "#ecf0f1",
+            "border": "1px solid #c0392b",
+            "borderRadius": "4px",
+            "backgroundColor": "#e74c3c"
+        },
 
         // now for a more complex example
         {

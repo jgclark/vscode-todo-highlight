@@ -1,6 +1,9 @@
 # Change Log
 To update to the latest version, please use VSCode's own Extensions user interface.
 
+## 2.1.0 - 2026-06-30
+- added whole-word matching (issue #104). Set the new `todohighlight.wholeWordMatch` setting to `true` to only highlight plain-text keywords when they appear as whole words (e.g. so `BUG:` no longer matches the `BUG:` inside `DEBUG:`). It can also be controlled per keyword via the new `wholeWord` property, which overrides the global setting. Keywords that use a custom `regex` are not affected.
+
 ## 2.0.8 - 2023-04-12
 - an interim release that bundles up existing merged PRs, mostly from security updates in dependencies. Including
   - Include and exclude options (issue #42, thanks to PR #66 by @yuriykis)

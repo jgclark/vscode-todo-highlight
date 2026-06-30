@@ -42,15 +42,15 @@ const DEFAULT_STYLE = {
 function getAssembledData(keywords, customDefaultStyle, isCaseSensitive) {
     let result = {}, regex = [], reg;
     keywords.forEach((v) => {
-        v = typeof v == 'string' ? { text: v } : v;
+        v = typeof v === 'string' ? { text: v } : v;
         var text = v.text;
-        if (!text) return;//NOTE: in case of the text is empty
+        if (!text) return; // If text is empty
 
         if (!isCaseSensitive) {
             text = text.toUpperCase();
         }
 
-        if (text == 'TODO:' || text == 'FIXME:') {
+        if (text === 'TODO:' || text === 'FIXME:') {
             v = Object.assign({}, DEFAULT_KEYWORDS[text], v);
         }
         v.diagnosticSeverity = SeverityMap[v.diagnosticSeverity]
@@ -89,13 +89,12 @@ function chooseAnnotationType(availableAnnotationTypes) {
 
 //get the include/exclude config
 function getPaths(config) {
-    return Array.isArray(config) ?
-        '{' + config.join(',') + ',' + '}'
-        : (typeof config == 'string' ? config : '');
+    return Array.isArray(config)
+        ? `{${config.join(',')},}`
+        : (typeof config === 'string' ? config : '');
 }
 
 function isFileNameOk(filename) {
-
     const settings = workspace.getConfiguration('todohighlight');
     const includePatterns = getPaths(settings.get('include')) || '{**/*}';
     const excludePatterns = getPaths(settings.get('exclude'));
@@ -109,7 +108,6 @@ function isFileNameOk(filename) {
 
 
 function searchAnnotations(workspaceState, pattern, callback) {
-
     const settings = workspace.getConfiguration('todohighlight');
     const includePattern = getPaths(settings.get('include')) || '{**/*}';
     const excludePattern = getPaths(settings.get('exclude'));
@@ -230,7 +228,7 @@ function showOutputChannel(data) {
 
         //for windows
         let patternType = 0;
-        if (platform == "linux" || platform == "darwin") {
+        if (platform === "linux" || platform === "darwin") {
             // for linux & mac
             patternType = 1;
         }
@@ -292,6 +290,17 @@ function escapeRegExp(s) {
     return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
 }
 
+// Wrap a keyword's regex pattern with word boundaries so that only whole words
+// are matched (e.g. so `BUG:` does not also match the `BUG:` inside `DEBUG:`).
+// A `\b` is only added on the side where the keyword starts/ends with a word
+// character, otherwise the boundary would never match (e.g. the `:` at the end
+// of `TODO:` is not a word character). For issue #104.
+function wholeWordPattern(pattern, keyword) {
+    const prefix = /^\w/.test(keyword) ? '\\b' : ''
+    const suffix = /\w$/.test(keyword) ? '\\b' : ''
+    return prefix + pattern + suffix
+}
+
 function escapeRegExpGroups(s) {
     // Lookbehind assertions ("(?<!abc) & (?<=abc)") supported from ECMAScript 2018 and onwards. Native in node.js 9 and up.
     if (parseFloat(process.version.replace('v', '')) > 9.0) {
@@ -318,6 +327,7 @@ module.exports = {
     setStatusMsg,
     showOutputChannel,
     escapeRegExp,
+    wholeWordPattern,
     escapeRegExpGroups,
     escapeRegExpGroupsLegacy,
     getContent,
