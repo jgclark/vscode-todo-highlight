@@ -64,11 +64,11 @@ function getAssembledData(keywords, customDefaultStyle, isCaseSensitive) {
         result[text] = Object.assign({}, DEFAULT_STYLE, customDefaultStyle, v);
 
         if (v.regex) {
-            regex.push(regex.pattern||text);
+            regex.push(v.regex.pattern || text);
         }
     })
 
-    if (regex) {
+    if (regex.length) {
         reg = regex.join('|');
     }
 
@@ -167,7 +167,7 @@ function searchAnnotations(workspaceState, pattern, callback) {
             setStatusMsg(zapIcon, progress + '% ' + statusMsg);
 
             if (times === totalFiles || window.manullyCancel) {
-                window.processing = true;
+                window.processing = false;
                 workspaceState.update('annotationList', annotationList);
                 callback(null, annotations, annotationList);
             }
@@ -187,6 +187,7 @@ function searchAnnotations(workspaceState, pattern, callback) {
         
     }, function (err) {
         errorHandler(err);
+        callback(err);
     });
 }
 
@@ -198,21 +199,27 @@ function searchAnnotations(workspaceState, pattern, callback) {
  * @param {RegExp} regexp - Pattern to match
  */
 function searchAnnotationInFile(file, annotations, annotationList, regexp) {
+    const filePath = file.uri.fsPath;
     const fileInUri = file.uri.toString();
-    const pathWithoutFile = fileInUri.substring(7, fileInUri.length);
+    const lineRegExp = new RegExp(
+        regexp.source,
+        regexp.flags.includes('g') ? regexp.flags : regexp.flags + 'g'
+    );
 
     for (let line = 0; line < file.lineCount; line++) {
         const lineText = file.lineAt(line).text;
-        const match = lineText.match(regexp);
-        if (match !== null) {
-            if (!annotations.hasOwnProperty(pathWithoutFile)) {
-                annotations[pathWithoutFile] = [];
+        let match;
+
+        lineRegExp.lastIndex = 0;
+        while ((match = lineRegExp.exec(lineText)) !== null) {
+            if (!annotations.hasOwnProperty(filePath)) {
+                annotations[filePath] = [];
             }
             let content = getContent(lineText, match);
             if (content.length > 500) {
                 content = content.substring(0, 500).trim() + '...';
             }
-            const locationInfo = getLocationInfo(fileInUri, pathWithoutFile, lineText, line, match);
+            const locationInfo = getLocationInfo(file.uri, filePath, lineText, line, match);
 
             const annotation = {
                 uri: locationInfo.uri,
@@ -224,7 +231,11 @@ function searchAnnotationInFile(file, annotations, annotationList, regexp) {
                 endCol: locationInfo.endCol
             };
             annotationList.push(annotation);
-            annotations[pathWithoutFile].push(annotation);
+            annotations[filePath].push(annotation);
+
+            if (match[0].length === 0) {
+                lineRegExp.lastIndex++;
+            }
         }
     }
 }
@@ -294,28 +305,28 @@ function showOutputChannel(data) {
  * @returns {string} Substring from the match through end of line
  */
 function getContent(lineText, match) {
-    return lineText.substring(lineText.indexOf(match[0]), lineText.length);
+    const start = match.index !== undefined ? match.index : lineText.indexOf(match[0]);
+    return lineText.substring(start, lineText.length);
 };
 
 /**
  * Builds location metadata for an annotation match.
- * @param {string} fileInUri - File URI string
- * @param {string} pathWithoutFile - File path without file:// prefix
+ * @param {vscode.Uri} fileUri - File URI
+ * @param {string} filePath - Absolute file path
  * @param {string} lineText - Full text of the matched line
  * @param {number} line - Zero-based line index
  * @param {RegExpMatchArray} match - Regex match result
  * @returns {{uri: string, absPath: string, relativePath: string, startCol: number, endCol: number}}
  */
-function getLocationInfo(fileInUri, pathWithoutFile, lineText, line, match) {
-    const rootPath = workspace.rootPath + '/';
-    const outputFile = pathWithoutFile.replace(rootPath, '');
-    const startCol = lineText.indexOf(match[0]);
+function getLocationInfo(fileUri, filePath, lineText, line, match) {
+    const outputFile = workspace.asRelativePath(fileUri, false);
+    const startCol = match.index !== undefined ? match.index : lineText.indexOf(match[0]);
     const endCol = lineText.length;
     const location = outputFile + ' ' + (line + 1) + ':' + (startCol + 1);
 
     return {
-        uri: fileInUri,
-        absPath: pathWithoutFile,
+        uri: fileUri.toString(),
+        absPath: filePath,
         relativePath: location,
         startCol: startCol,
         endCol: endCol
@@ -339,7 +350,7 @@ function createStatusBarItem() {
  * @param {Error|string} err - Error to log
  */
 function errorHandler(err) {
-    window.processing = true;
+    window.processing = false;
     setStatusMsg(defaultIcon, defaultMsg);
     console.log('todohighlight err:', err);
 }

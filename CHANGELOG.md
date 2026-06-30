@@ -2,7 +2,23 @@
 To update to the latest version, please use VSCode's own Extensions user interface.
 
 ## 2.1.0 - 2026-06-30
+Fix issues identified by @Cursor:
+- getAssembledData: regex.push(v.regex.pattern || text) and if (regex.length) so default keyword merging works correctly
+- searchAnnotations: findFiles errors now call callback(err) so the search does not hang
+- window.processing: set to false when search completes or on error (was incorrectly true)
+- searchAnnotationInFile: uses file.uri.fsPath instead of substring(7); finds all matches per line via a global regex loop
+- getContent / getLocationInfo: use match.index; getLocationInfo uses workspace.asRelativePath() instead of deprecated workspace.rootPath
+- Activation: activeTextEditor?.document so the extension loads when no editor is open
+- Config reload: onDidChangeConfiguration uses activeEditor?.document?.uri for multi-root scope
+- Excluded files: clears decorations and diagnostics when isFileNameOk returns false
+- decorationStyleFromKeyword: strips text, wholeWord, regex, diagnosticSeverity before creating decoration types
+- Regex flags: built once with 'g' or 'gi' instead of double new RegExp
+- pattern.lastIndex = 0: reset before each decoration scan so highlights update reliably on re-runs
+
+## 2.0.9 - 2026-06-30
 - added whole-word matching (issue #104). Set the new `todohighlight.wholeWordMatch` setting to `true` to only highlight plain-text keywords when they appear as whole words (e.g. so `BUG:` no longer matches the `BUG:` inside `DEBUG:`). It can also be controlled per keyword via the new `wholeWord` property, which overrides the global setting. Keywords that use a custom `regex` are not affected.
+- dev: move some `dependencies` to `devDependencies`, and add `minimatch` as a formal dependency
+- dev: added jsdoc comments
 
 ## 2.0.8 - 2023-04-12
 - an interim release that bundles up existing merged PRs, mostly from security updates in dependencies. Including

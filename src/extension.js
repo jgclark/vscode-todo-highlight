@@ -18,12 +18,10 @@ function activate(context) {
     let activeEditor = window.activeTextEditor;
     var isCaseSensitive, assembledData, decorationTypes, pattern, styleForRegExp, keywordsPattern, wholeWordMatch;
     const workspaceState = context.workspaceState;
-    const currentDocument = vscode.window.activeTextEditor.document;
+    const activeDocument = vscode.window.activeTextEditor?.document;
 
-    // Get the configuration
-    // let settings = workspace.getConfiguration('todohighlight');
-    // Get the configuration for the current document (TEST: hoping this helps gives us multi-root support)
-    let settings = workspace.getConfiguration('todohighlight', currentDocument.uri);
+    // Get the configuration for the current document (multi-root support)
+    let settings = workspace.getConfiguration('todohighlight', activeDocument?.uri);
 
     init(settings);
 
@@ -82,7 +80,7 @@ function activate(context) {
     }, null, context.subscriptions);
 
     workspace.onDidChangeConfiguration(function () {
-        settings = workspace.getConfiguration('todohighlight');
+        settings = workspace.getConfiguration('todohighlight', activeEditor?.document?.uri);
 
         // If disabled, do not re-initialize the data or we will not be able to clear the style immediatly via 'toggle highlight' command
         if (!settings.get('isEnable')) return;
@@ -119,6 +117,12 @@ function activate(context) {
 
         // the function isFileNameOk checks for the include and exclude settings
         if (!util.isFileNameOk(activeEditor.document.fileName)) {
+            if (decorationTypes) {
+                Object.keys(decorationTypes).forEach(v => {
+                    activeEditor.setDecorations(decorationTypes[v], []);
+                });
+            }
+            diagnostics.set(activeEditor.document.uri, []);
             return;
         }
 
@@ -127,6 +131,7 @@ function activate(context) {
 
         const text = activeEditor.document.getText();
         let matches = {}, match;
+        pattern.lastIndex = 0;
         while (match = pattern.exec(text)) {
             const startPos = activeEditor.document.positionAt(match.index);
             const endPos = activeEditor.document.positionAt(match.index + match[0].length);
@@ -171,6 +176,20 @@ function activate(context) {
     }
 
     /**
+     * Strips keyword-specific fields that are not valid DecorationRenderOptions.
+     * @param {object} keywordConfig - Merged keyword configuration
+     * @returns {object} Style properties safe for createTextEditorDecorationType
+     */
+    function decorationStyleFromKeyword(keywordConfig) {
+        const style = Object.assign({}, keywordConfig);
+        delete style.text;
+        delete style.wholeWord;
+        delete style.regex;
+        delete style.diagnosticSeverity;
+        return style;
+    }
+
+    /**
      * Loads settings, (re)creates decoration types, and builds the search regex pattern.
      * @param {vscode.WorkspaceConfiguration} settings - todohighlight configuration
      */
@@ -211,7 +230,7 @@ function activate(context) {
 
                 var mergedStyle = Object.assign({}, {
                     overviewRulerLane: vscode.OverviewRulerLane.Right
-                }, assembledData[v]);
+                }, decorationStyleFromKeyword(assembledData[v]));
 
                 if (!mergedStyle.overviewRulerColor) {
                     // use backgroundColor as the default overviewRulerColor if not specified by the user setting
@@ -240,10 +259,8 @@ function activate(context) {
             }).join('|');
         }
 
-        pattern = new RegExp(pattern, 'gi');
-        if (isCaseSensitive) {
-            pattern = new RegExp(pattern, 'g');
-        }
+        const patternFlags = isCaseSensitive ? 'g' : 'gi';
+        pattern = new RegExp(pattern, patternFlags);
     }
 
     /** Debounces decoration updates on the next tick to batch rapid editor changes. */
