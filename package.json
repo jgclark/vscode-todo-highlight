@@ -340,6 +340,13 @@
 		"Where used: webpack → schema-utils → ajv → fast-uri (devDependency build path only; not shipped in the VSIX).",
 		"Pin via overrides rather than waiting on Dependabot PR #131 so the reason stays documented in package.json."
 	],
+	"_linkifyItSecurityNotes": [
+		"Dependabot alerts #68 (CVE-2026-59887) and #66 (CVE-2026-48801) on linkify-it, plus #64 on markdown-it.",
+		"Those packages came only via vsce → markdown-it → linkify-it (publish tooling wrongly listed under dependencies on older releases).",
+		"They are no longer in package.json / package-lock.json after the v2.0.9 dependency tidy that removed vsce from dependencies.",
+		"No override is applied: linkify-it is absent from the tree, and forcing 5.0.2 would break markdown-it@12 if vsce were re-added.",
+		"Pushing the commits that removed vsce should auto-close alerts #64, #66, and #68 on GitHub."
+	],
 	"overrides": {
 		"brace-expansion@1": "1.1.16",
 		"brace-expansion@2": "2.1.3",
