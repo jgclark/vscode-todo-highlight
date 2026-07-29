@@ -2,6 +2,7 @@
 To update to the latest version, please use VSCode's own Extensions user interface.
 
 ## 2.1.0 - 2026-06-30
+- security: pin `brace-expansion` overrides to patched 1.1.16 / 2.1.3 / 5.0.8 (Dependabot #67 and related CVE-2026-13149 / CVE-2026-14257 alerts).
 Fix issues identified by @Cursor:
 - getAssembledData: regex.push(v.regex.pattern || text) and if (regex.length) so default keyword merging works correctly
 - searchAnnotations: findFiles errors now call callback(err) so the search does not hang
