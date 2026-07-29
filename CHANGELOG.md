@@ -6,6 +6,7 @@ To update to the latest version, please use VSCode's own Extensions user interfa
 - security: pin `fast-uri` override to 3.1.4 (Dependabot #70 / CVE-2026-16221).
 - security: linkify-it / markdown-it Dependabot alerts #66, #68, #64 addressed by removal of `vsce` (and its transitive deps) from dependencies - no longer in the lockfile.
 - security: pin `js-yaml` override to 4.3.0 (Dependabot #73 / CVE-2026-59869).
+- security: pin `serialize-javascript` override to 7.0.7 (Dependabot #50 / GHSA-5c6j-r48x-rmvq and #61 / CVE-2026-34043).
 Fix issues identified by @Cursor:
 - getAssembledData: regex.push(v.regex.pattern || text) and if (regex.length) so default keyword merging works correctly
 - searchAnnotations: findFiles errors now call callback(err) so the search does not hang
