@@ -341,11 +341,11 @@
 		"Pin via overrides rather than waiting on Dependabot PR #131 so the reason stays documented in package.json."
 	],
 	"_linkifyItSecurityNotes": [
-		"Dependabot alerts #68 (CVE-2026-59887) and #66 (CVE-2026-48801) on linkify-it, plus #64 on markdown-it.",
-		"Those packages came only via vsce → markdown-it → linkify-it (publish tooling wrongly listed under dependencies on older releases).",
+		"Dependabot alerts from removed vsce transitive deps: #68/#66 (linkify-it), #64 (markdown-it), #12 (xml2js / CVE-2023-0842 prototype pollution).",
+		"Those packages came only via vsce (publish tooling wrongly listed under dependencies on older releases): vsce → markdown-it → linkify-it, and vsce → xml2js@0.4.23.",
 		"They are no longer in package.json / package-lock.json after the v2.0.9 dependency tidy that removed vsce from dependencies.",
-		"No override is applied: linkify-it is absent from the tree, and forcing 5.0.2 would break markdown-it@12 if vsce were re-added.",
-		"Pushing the commits that removed vsce should auto-close alerts #64, #66, and #68 on GitHub."
+		"No overrides applied: the packages are absent from the tree. Forcing newer majors onto a re-added vsce could break its markdown-it@12 / xml2js^0.4 expectations.",
+		"Pushing the commits that removed vsce should auto-close alerts #12, #64, #66, and #68 on GitHub."
 	],
 	"_jsYamlOverrideNotes": [
 		"Security pin for js-yaml (Dependabot alert #73 / CVE-2026-59869 / GHSA-52cp-r559-cp3m).",

@@ -4,7 +4,7 @@ To update to the latest version, please use VSCode's own Extensions user interfa
 ## 2.1.0 - 2026-06-30
 - security: pin `brace-expansion` overrides to patched 1.1.16 / 2.1.3 / 5.0.8 (Dependabot #67 and related CVE-2026-13149 / CVE-2026-14257 alerts).
 - security: pin `fast-uri` override to 3.1.4 (Dependabot #70 / CVE-2026-16221).
-- security: linkify-it / markdown-it Dependabot alerts #66, #68, #64 addressed by removal of `vsce` (and its transitive deps) from dependencies - no longer in the lockfile.
+- security: linkify-it / markdown-it / xml2js Dependabot alerts #66, #68, #64, #12 addressed by removal of `vsce` (and its transitive deps) from dependencies - no longer in the lockfile.
 - security: pin `js-yaml` override to 4.3.0 (Dependabot #73 / CVE-2026-59869).
 - security: pin `serialize-javascript` override to 7.0.7 (Dependabot #50 / GHSA-5c6j-r48x-rmvq and #61 / CVE-2026-34043).
 Fix issues identified by @Cursor:
