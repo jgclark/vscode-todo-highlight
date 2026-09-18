@@ -364,10 +364,11 @@
 		"Pushing the commits that removed vsce should auto-close alerts #12, #64, #66, and #68 on GitHub."
 	],
 	"_jsYamlOverrideNotes": [
-		"Security pin for js-yaml (Dependabot alert #73 / CVE-2026-59869 / GHSA-52cp-r559-cp3m).",
-		"YAML merge-key chains can force quadratic CPU consumption while parsing.",
-		"Vulnerable: >=4.0.0 <4.3.0. Patched: 4.3.0.",
-		"Where used: mocha → js-yaml (devDependency / test runner only; not shipped in the VSIX)."
+		"Security pin for js-yaml (Dependabot alerts #73 / CVE-2026-59869 / GHSA-52cp-r559-cp3m, #80 / GHSA-5p4m-2wfm-xmqj, and #87 / CVE-2026-84375 / GHSA-2883-xcg3-v3hh).",
+		"#73: YAML merge-key chains can force quadratic CPU consumption while parsing. Vulnerable: >=4.0.0 <4.3.0. Patched: 4.3.0.",
+		"#80: Quadratic CPU in !!omap resolution (CVE-2026-59870 fix not backported to 4.x until 4.3.1). Vulnerable: >=4.0.0 <4.3.1. Patched: 4.3.1 (also 3.15.1 for 3.x - not used here).",
+		"#87: maxTotalMergeKeys does not limit CPU use for empty merge sources. Vulnerable: >=4.0.0 <4.3.2. Patched: 4.3.2 (also 3.15.2 for 3.x - not used here).",
+		"Pin to 4.3.2 to cover all three. Where used: mocha → js-yaml (devDependency / test runner only; not shipped in the VSIX)."
 	],
 	"_serializeJavascriptOverrideNotes": [
 		"Security pin for serialize-javascript (Dependabot alerts #50 / GHSA-5c6j-r48x-rmvq and #61 / CVE-2026-34043).",
@@ -381,7 +382,7 @@
 		"brace-expansion@2": "2.1.3",
 		"brace-expansion@5": "5.0.8",
 		"fast-uri": "3.1.6",
-		"js-yaml": "4.3.0",
+		"js-yaml": "4.3.2",
 		"serialize-javascript": "7.0.7"
 	}
 }
