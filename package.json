@@ -9,7 +9,7 @@
 		"keyword",
 		"annotation"
 	],
-	"version": "2.1.0",
+	"version": "2.2.0",
 	"publisher": "jgclark",
 	"license": "MIT",
 	"icon": "assets/icon.png",
@@ -82,12 +82,27 @@
 				"title": "List highlighted annotations",
 				"category": "TODO-Highlight",
 				"command": "todohighlight.listAnnotations"
+			},
+			{
+				"title": "Show config log",
+				"category": "TODO-Highlight",
+				"command": "todohighlight.showLog"
 			}
 		],
 		"configuration": {
 			"type": "object",
 			"title": "TODO Highlight",
 			"properties": {
+				"todohighlight.configFile": {
+					"type": "string",
+					"default": "",
+					"markdownDescription": "Path to a workspace config file (relative to the workspace root). When empty, the extension auto-detects `.todohighlight.json` or `.todohighlight.jsonc` in the workspace root. Values from the config file override the same keys in VS Code `settings.json`. Both sources remain available."
+				},
+				"todohighlight.debugLog": {
+					"type": "boolean",
+					"default": true,
+					"description": "Write config debug messages to the TODO Highlight v2 output channel and the Extension Host log."
+				},
 				"todohighlight.isEnable": {
 					"type": "boolean",
 					"default": true,
@@ -324,6 +339,7 @@
 		"publisherId": "47daa402-5396-4346-b7bd-62494d6d63ec"
 	},
 	"dependencies": {
+		"jsonc-parser": "^3.3.1",
 		"minimatch": "^3.1.5"
 	},
 	"_braceExpansionOverrideNotes": [

@@ -1,8 +1,96 @@
 var vscode = require('vscode');
 var os = require("os");
+var fs = require('fs');
+var path = require('path');
 var minimatch = require('minimatch');
+var jsonc = require('jsonc-parser');
 var window = vscode.window;
 var workspace = vscode.workspace;
+
+const CONFIG_FILE_NAMES = ['.todohighlight.json', '.todohighlight.jsonc'];
+
+const CONFIG_KEYS = [
+    'isEnable',
+    'isCaseSensitive',
+    'wholeWordMatch',
+    'toggleURI',
+    'keywords',
+    'keywordsPattern',
+    'defaultStyle',
+    'include',
+    'exclude',
+    'maxFilesForSearch',
+    'enableDiagnostics'
+];
+
+const configFileCache = {};
+
+var logChannel = null;
+
+/**
+ * Creates the log output channel and registers it for disposal.
+ * @param {vscode.ExtensionContext} context - Extension activation context
+ */
+function initLogChannel(context) {
+    if (!logChannel) {
+        logChannel = window.createOutputChannel('TODO Highlight v2');
+        context.subscriptions.push(logChannel);
+    }
+}
+
+/**
+ * Shows the log output channel.
+ */
+function showLogChannel() {
+    if (logChannel) {
+        logChannel.show(true);
+    }
+}
+
+/**
+ * Whether config debug messages are also written to the Extension Host log.
+ * @returns {boolean}
+ */
+function isDebugLogEnabled() {
+    return workspace.getConfiguration('todohighlight').get('debugLog', true);
+}
+
+/**
+ * Writes a message to the log output channel (and Extension Host when debugLog is on).
+ * @param {string} message - Log message
+ */
+function log(message) {
+    if (logChannel) {
+        logChannel.appendLine(message);
+    }
+    if (isDebugLogEnabled()) {
+        console.error('[TODO Highlight v2] ' + message);
+    }
+}
+
+/**
+ * Writes an error message to the Todo Highlight output channel.
+ * @param {string} message - Error message
+ * @param {Error|*} [err] - Optional error object
+ */
+function logError(message, err) {
+    log(message);
+    if (err !== undefined && logChannel) {
+        logChannel.appendLine(String(err));
+    }
+    if (err !== undefined && isDebugLogEnabled()) {
+        console.error(err);
+    }
+}
+
+/**
+ * Logs config file watcher registration with explicit found / not-found status.
+ * @param {{ folderPath: string, target: string, exists: boolean }} options
+ */
+function logConfigWatch({ folderPath, target, exists }) {
+    const status = exists ? 'found' : 'not found yet';
+    log(`todohighlight: watching for config at ${target} in ${folderPath} (${status})`);
+}
 
 var defaultIcon = '$(checklist)';
 var zapIcon = '$(zap)';
@@ -111,14 +199,328 @@ function getPaths(config) {
 }
 
 /**
+ * Returns the workspace folder for a resource URI or file path.
+ * @param {vscode.Uri|string|undefined} resource - Document URI or file path
+ * @returns {vscode.WorkspaceFolder|undefined}
+ */
+function getWorkspaceFolder(resource) {
+    if (!resource) {
+        return workspace.workspaceFolders && workspace.workspaceFolders[0];
+    }
+    const uri = typeof resource === 'string' ? vscode.Uri.file(resource) : resource;
+    let folder = workspace.getWorkspaceFolder(uri);
+
+    if (!folder && uri.fsPath.endsWith('.code-workspace') && workspace.workspaceFolders) {
+        const wsDir = path.normalize(path.dirname(uri.fsPath));
+        folder = workspace.workspaceFolders.find((wf) => path.normalize(wf.uri.fsPath) === wsDir);
+    }
+
+    if (!folder && workspace.workspaceFolders) {
+        const filePath = path.normalize(uri.fsPath);
+        folder = workspace.workspaceFolders.find((wf) => {
+            const root = path.normalize(wf.uri.fsPath);
+            return filePath === root || filePath.startsWith(root + path.sep);
+        });
+    }
+
+    return folder;
+}
+
+/**
+ * Strips the `todohighlight.` prefix and keeps only known config keys.
+ * @param {object} raw - Parsed config file contents
+ * @returns {object|null} Normalized config or null if empty
+ */
+function normalizeFileConfig(raw) {
+    if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+        return null;
+    }
+
+    const result = {};
+    CONFIG_KEYS.forEach((key) => {
+        if (raw[key] !== undefined) {
+            result[key] = raw[key];
+        }
+        const prefixed = 'todohighlight.' + key;
+        if (raw[prefixed] !== undefined) {
+            result[key] = raw[prefixed];
+        }
+    });
+
+    return Object.keys(result).length ? result : null;
+}
+
+/**
+ * Resolves the path to a config file for a workspace folder.
+ * @param {string} folderPath - Absolute workspace folder path
+ * @param {string} configFileSetting - User-specified config file path, if any
+ * @returns {string|null} Absolute path to the config file, or null if not found
+ */
+function resolveConfigPath(folderPath, configFileSetting) {
+    if (configFileSetting && configFileSetting.trim()) {
+        return path.isAbsolute(configFileSetting)
+            ? configFileSetting
+            : path.join(folderPath, configFileSetting);
+    }
+
+    for (let i = 0; i < CONFIG_FILE_NAMES.length; i++) {
+        const candidate = path.join(folderPath, CONFIG_FILE_NAMES[i]);
+        if (fs.existsSync(candidate)) {
+            return candidate;
+        }
+    }
+
+    return null;
+}
+
+/**
+ * Locates a workspace config file for a resource URI.
+ * When configFile is set, searches all workspace roots (and the .code-workspace directory).
+ * @param {vscode.Uri|string|undefined} resourceUri - Document URI for scoped lookup
+ * @param {string} configFileSetting - User-specified config file path, if any
+ * @returns {{ configPath: string|null, cacheKey: string }}
+ */
+function findConfigLocation(resourceUri, configFileSetting) {
+    const customFile = configFileSetting && configFileSetting.trim();
+    const searchDirs = [];
+
+    if (workspace.workspaceFolders) {
+        workspace.workspaceFolders.forEach((wf) => {
+            if (!searchDirs.includes(wf.uri.fsPath)) {
+                searchDirs.push(wf.uri.fsPath);
+            }
+        });
+    }
+
+    if (resourceUri) {
+        const uri = typeof resourceUri === 'string' ? vscode.Uri.file(resourceUri) : resourceUri;
+        if (uri.fsPath.endsWith('.code-workspace')) {
+            const wsDir = path.dirname(uri.fsPath);
+            if (!searchDirs.includes(wsDir)) {
+                searchDirs.unshift(wsDir);
+            }
+        }
+    }
+
+    const folder = getWorkspaceFolder(resourceUri);
+    if (folder && !searchDirs.includes(folder.uri.fsPath)) {
+        searchDirs.unshift(folder.uri.fsPath);
+    }
+
+    if (customFile) {
+        for (let i = 0; i < searchDirs.length; i++) {
+            const configPath = resolveConfigPath(searchDirs[i], customFile);
+            if (configPath && fs.existsSync(configPath)) {
+                return { configPath, cacheKey: configPath };
+            }
+        }
+        const probeDir = folder ? folder.uri.fsPath : searchDirs[0];
+        const probePath = probeDir ? resolveConfigPath(probeDir, customFile) : null;
+        return { configPath: null, cacheKey: probePath || '__none__' };
+    }
+
+    for (let i = 0; i < searchDirs.length; i++) {
+        const configPath = resolveConfigPath(searchDirs[i], '');
+        if (configPath && fs.existsSync(configPath)) {
+            return { configPath, cacheKey: configPath };
+        }
+    }
+
+    return { configPath: null, cacheKey: folder ? `__none__:${folder.uri.fsPath}` : '__none__' };
+}
+
+/**
+ * Parses JSON or JSONC config file text.
+ * @param {string} content - File contents
+ * @param {string} filePath - Absolute path (for error messages)
+ * @returns {object}
+ */
+function parseConfigContent(content, filePath) {
+    const errors = [];
+    const parsed = jsonc.parse(content, errors);
+
+    if (errors.length) {
+        const detail = jsonc.printParseErrorCode(errors[0].error);
+        const location = errors[0].offset !== undefined ? ` at offset ${errors[0].offset}` : '';
+        throw new SyntaxError(`${detail}${location} in ${filePath}`);
+    }
+
+    return parsed;
+}
+
+/**
+ * Parses a config file from disk (JSON or JSONC).
+ * @param {string} filePath - Absolute path to the config file
+ * @returns {object|null} Normalized config
+ */
+function loadConfigFromPath(filePath) {
+    const ext = path.extname(filePath).toLowerCase();
+
+    if (ext === '.js') {
+        const requireFunc = typeof __webpack_require__ === 'function' ? __non_webpack_require__ : require;
+        delete requireFunc.cache[requireFunc.resolve(filePath)];
+        const mod = requireFunc(filePath);
+        return normalizeFileConfig(mod.default || mod);
+    }
+
+    const content = fs.readFileSync(filePath, 'utf8');
+    return normalizeFileConfig(parseConfigContent(content, filePath));
+}
+
+/**
+ * Clears cached config file data for one config path or all entries.
+ * @param {string} [cacheKey] - Config path or cache key, or omit to clear all
+ */
+function invalidateConfigCache(cacheKey) {
+    if (cacheKey) {
+        delete configFileCache[cacheKey];
+        return;
+    }
+
+    Object.keys(configFileCache).forEach((key) => {
+        delete configFileCache[key];
+    });
+}
+
+/**
+ * Merges VS Code settings with an optional workspace config file (file wins on conflict).
+ * @param {vscode.Uri|undefined} resourceUri - Document URI for scoped settings
+ * @returns {{get: function(string, *=): *, vscode: vscode.WorkspaceConfiguration, fileConfig: object|null, configPath: string|null}}
+ */
+function getEffectiveConfiguration(resourceUri) {
+    const vscodeSettings = workspace.getConfiguration('todohighlight', resourceUri);
+    const configFileSetting = vscodeSettings.get('configFile', '');
+    const { configPath, cacheKey } = findConfigLocation(resourceUri, configFileSetting);
+    let fileConfig = null;
+
+    if (configPath) {
+        const cached = configFileCache[cacheKey];
+        if (cached) {
+            fileConfig = cached.config;
+        } else {
+            try {
+                fileConfig = loadConfigFromPath(configPath);
+                configFileCache[cacheKey] = { path: configPath, config: fileConfig };
+                log(`todohighlight: config loaded from ${configPath}`);
+            } catch (err) {
+                logError(`todohighlight: failed to load config file ${configPath}`, err);
+                configFileCache[cacheKey] = { path: configPath, config: null };
+            }
+        }
+    } else if (configFileCache[cacheKey]) {
+        fileConfig = configFileCache[cacheKey].config;
+    } else {
+        configFileCache[cacheKey] = { path: null, config: null };
+    }
+
+    return {
+        get(key, defaultValue) {
+            if (fileConfig && fileConfig[key] !== undefined) {
+                return fileConfig[key];
+            }
+            return vscodeSettings.get(key, defaultValue);
+        },
+        vscode: vscodeSettings,
+        fileConfig: fileConfig,
+        configPath: configPath
+    };
+}
+
+/**
+ * Registers file watchers so config file changes trigger a reload.
+ * Returns a function to re-register watchers (e.g. after configFile setting changes).
+ * @param {vscode.ExtensionContext} context - Extension context
+ * @param {function(): void} onConfigChange - Called when a config file changes
+ * @returns {function(): void} Call to refresh watchers for the current configFile setting
+ */
+function watchConfigFiles(context, onConfigChange) {
+    let watchers = [];
+    const AUTO_DETECT_GLOB = '{.todohighlight.json,.todohighlight.jsonc}';
+
+    function refreshWatchers() {
+        watchers.forEach((watcher) => watcher.dispose());
+        watchers = [];
+
+        if (!workspace.workspaceFolders) {
+            return;
+        }
+
+        const watchedPaths = new Set();
+
+        workspace.workspaceFolders.forEach((folder) => {
+            const folderPath = folder.uri.fsPath;
+            const vscodeSettings = workspace.getConfiguration('todohighlight', folder.uri);
+            const configFileSetting = vscodeSettings.get('configFile', '');
+            const customFile = configFileSetting && configFileSetting.trim();
+
+            if (customFile) {
+                const expectedPath = resolveConfigPath(folderPath, configFileSetting);
+                if (!expectedPath || watchedPaths.has(expectedPath)) {
+                    return;
+                }
+                watchedPaths.add(expectedPath);
+
+                const ownerFolder = workspace.workspaceFolders.find((wf) => {
+                    const root = wf.uri.fsPath;
+                    return expectedPath === root || expectedPath.startsWith(root + path.sep);
+                }) || folder;
+                const pattern = new vscode.RelativePattern(ownerFolder, path.relative(ownerFolder.uri.fsPath, expectedPath));
+
+                logConfigWatch({
+                    folderPath,
+                    target: expectedPath,
+                    exists: fs.existsSync(expectedPath)
+                });
+
+                const watcher = workspace.createFileSystemWatcher(pattern);
+                const reload = () => {
+                    invalidateConfigCache(expectedPath);
+                    onConfigChange();
+                };
+
+                watcher.onDidChange(reload);
+                watcher.onDidCreate(reload);
+                watcher.onDidDelete(reload);
+                watchers.push(watcher);
+                return;
+            }
+
+            logConfigWatch({
+                folderPath,
+                target: AUTO_DETECT_GLOB,
+                exists: CONFIG_FILE_NAMES.some((name) => fs.existsSync(path.join(folderPath, name)))
+            });
+
+            const pattern = new vscode.RelativePattern(folder, AUTO_DETECT_GLOB);
+            const watcher = workspace.createFileSystemWatcher(pattern);
+            const reload = () => {
+                invalidateConfigCache();
+                onConfigChange();
+            };
+
+            watcher.onDidChange(reload);
+            watcher.onDidCreate(reload);
+            watcher.onDidDelete(reload);
+            watchers.push(watcher);
+        });
+    }
+
+    refreshWatchers();
+    context.subscriptions.push({ dispose: () => watchers.forEach((watcher) => watcher.dispose()) });
+    return refreshWatchers;
+}
+
+/**
  * Checks whether a file path matches include/exclude glob settings.
- * @param {string} filename - Absolute or workspace-relative file path
+ * @param {vscode.Uri|string} resourceUri - Document URI or absolute file path
+ * @param {{get: function(string, *=): *}|undefined} [settings] - Preloaded settings (avoids re-loading config)
  * @returns {boolean} True if the file should be processed
  */
-function isFileNameOk(filename) {
-    const settings = workspace.getConfiguration('todohighlight');
-    const includePatterns = getPaths(settings.get('include')) || '{**/*}';
-    const excludePatterns = getPaths(settings.get('exclude'));
+function isFileNameOk(resourceUri, settings) {
+    const filename = typeof resourceUri === 'string' ? resourceUri : resourceUri.fsPath;
+    const effectiveSettings = settings || getEffectiveConfiguration(resourceUri);
+    const includePatterns = getPaths(effectiveSettings.get('include')) || '{**/*}';
+    const excludePatterns = getPaths(effectiveSettings.get('exclude'));
 
     if (minimatch(filename, includePatterns) && !minimatch(filename, excludePatterns)) {
         return true;
@@ -134,8 +536,8 @@ function isFileNameOk(filename) {
  * @param {RegExp} pattern - Pattern to match annotation keywords
  * @param {function(Error|null, object=, object[]=): void} callback - Called when search completes or fails
  */
-function searchAnnotations(workspaceState, pattern, callback) {
-    const settings = workspace.getConfiguration('todohighlight');
+function searchAnnotations(workspaceState, pattern, callback, resourceUri) {
+    const settings = getEffectiveConfiguration(resourceUri);
     const includePattern = getPaths(settings.get('include')) || '{**/*}';
     const excludePattern = getPaths(settings.get('exclude'));
     const limitationForSearch = settings.get('maxFilesForSearch', 5120);
@@ -248,7 +650,7 @@ function searchAnnotationInFile(file, annotations, annotationList, regexp) {
  */
 function annotationsFound(err, annotations, annotationList) {
     if (err) {
-        console.log('todohighlight err:', err);
+        logError('todohighlight err:', err);
         setStatusMsg(defaultIcon, defaultMsg);
         return;
     }
@@ -272,7 +674,8 @@ function showOutputChannel(data) {
         return;
     }
 
-    const settings = workspace.getConfiguration('todohighlight');
+    const activeUri = window.activeTextEditor && window.activeTextEditor.document.uri;
+    const settings = getEffectiveConfiguration(activeUri);
     const toggleURI = settings.get('toggleURI', false);
     const platform = os.platform();
 
@@ -352,7 +755,7 @@ function createStatusBarItem() {
 function errorHandler(err) {
     window.processing = false;
     setStatusMsg(defaultIcon, defaultMsg);
-    console.log('todohighlight err:', err);
+    logError('todohighlight err:', err);
 }
 
 /**
@@ -421,18 +824,25 @@ function escapeRegExpGroupsLegacy(s) {
 }
 
 module.exports = {
+    CONFIG_FILE_NAMES,
     DEFAULT_STYLE,
-    getAssembledData,
-    chooseAnnotationType,
-    searchAnnotations,
     annotationsFound,
+    chooseAnnotationType,
     createStatusBarItem,
-    setStatusMsg,
-    showOutputChannel,
     escapeRegExp,
-    wholeWordPattern,
     escapeRegExpGroups,
     escapeRegExpGroupsLegacy,
+    getAssembledData,
     getContent,
-    isFileNameOk
+    getEffectiveConfiguration,
+    initLogChannel,
+    invalidateConfigCache,
+    isFileNameOk,
+    log,
+    searchAnnotations,
+    setStatusMsg,
+    showLogChannel,
+    showOutputChannel,
+    watchConfigFiles,
+    wholeWordPattern
 };

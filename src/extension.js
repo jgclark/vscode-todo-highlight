@@ -14,6 +14,9 @@ var workspace = vscode.workspace;
  * @param {vscode.ExtensionContext} context - Extension activation context
  */
 function activate(context) {
+    util.initLogChannel(context);
+    util.log('TODO Highlight v2 activated');
+
     var timeout = null;
     let activeEditor = window.activeTextEditor;
     var isCaseSensitive, assembledData, decorationTypes, pattern, styleForRegExp, keywordsPattern, wholeWordMatch;
@@ -21,19 +24,46 @@ function activate(context) {
     const activeDocument = vscode.window.activeTextEditor?.document;
 
     // Get the configuration for the current document (multi-root support)
-    let settings = workspace.getConfiguration('todohighlight', activeDocument?.uri);
+    let settings = util.getEffectiveConfiguration(activeDocument?.uri);
 
-    init(settings);
+    init(activeDocument?.uri);
+
+    const refreshConfigWatchers = util.watchConfigFiles(context, function () {
+        settings = util.getEffectiveConfiguration(activeEditor?.document?.uri);
+        if (settings.get('isEnable')) {
+            init(activeEditor?.document?.uri);
+            triggerUpdateDecorations();
+        }
+    });
+
+    function reloadFromWorkspace(resourceUri) {
+        util.invalidateConfigCache();
+        refreshConfigWatchers();
+        settings = util.getEffectiveConfiguration(resourceUri);
+        if (settings.get('isEnable')) {
+            init(resourceUri);
+            triggerUpdateDecorations();
+        }
+    }
+
+    if (!workspace.workspaceFolders || workspace.workspaceFolders.length === 0) {
+        util.log('todohighlight: waiting for a workspace folder before loading config');
+        workspace.onDidChangeWorkspaceFolders(function () {
+            if (workspace.workspaceFolders && workspace.workspaceFolders.length > 0) {
+                reloadFromWorkspace(activeEditor?.document?.uri);
+            }
+        }, null, context.subscriptions);
+    }
 
     context.subscriptions.push(vscode.commands.registerCommand('todohighlight.toggleHighlight', function () {
-        settings.update('isEnable', !settings.get('isEnable'), true).then(function () {
+        settings.vscode.update('isEnable', !settings.get('isEnable'), true).then(function () {
             triggerUpdateDecorations();
         });
     }))
 
     context.subscriptions.push(vscode.commands.registerCommand('todohighlight.listAnnotations', function () {
         if (keywordsPattern.trim()) {
-            util.searchAnnotations(workspaceState, pattern, util.annotationsFound);
+            util.searchAnnotations(workspaceState, pattern, util.annotationsFound, activeEditor?.document?.uri);
         } else {
             if (!assembledData) return;
             var availableAnnotationTypes = Object.keys(assembledData);
@@ -45,9 +75,13 @@ function activate(context) {
                     annotationType = util.escapeRegExp(annotationType);
                     searchPattern = new RegExp(annotationType, isCaseSensitive ? 'g' : 'gi');
                 }
-                util.searchAnnotations(workspaceState, searchPattern, util.annotationsFound);
+                util.searchAnnotations(workspaceState, searchPattern, util.annotationsFound, activeEditor?.document?.uri);
             });
         }
+    }));
+
+    context.subscriptions.push(vscode.commands.registerCommand('todohighlight.showLog', function () {
+        util.showLogChannel();
     }));
 
     context.subscriptions.push(vscode.commands.registerCommand('todohighlight.showOutputChannel', function () {
@@ -64,7 +98,9 @@ function activate(context) {
 
     window.onDidChangeActiveTextEditor(function (editor) {
         activeEditor = editor;
+        settings = util.getEffectiveConfiguration(editor?.document?.uri);
         if (editor) {
+            init(editor.document.uri);
             triggerUpdateDecorations();
         }
     }, null, context.subscriptions);
@@ -79,14 +115,13 @@ function activate(context) {
         diagnostics.set(event.document, [])
     }, null, context.subscriptions);
 
-    workspace.onDidChangeConfiguration(function () {
-        settings = workspace.getConfiguration('todohighlight', activeEditor?.document?.uri);
+    workspace.onDidChangeConfiguration(function (event) {
+        if (!event.affectsConfiguration('todohighlight')) {
+            return;
+        }
 
-        // If disabled, do not re-initialize the data or we will not be able to clear the style immediatly via 'toggle highlight' command
-        if (!settings.get('isEnable')) return;
-
-        init(settings);
-        triggerUpdateDecorations();
+        util.log('todohighlight: settings changed, reloading config');
+        reloadFromWorkspace(activeEditor?.document?.uri);
     }, null, context.subscriptions);
 
     /**
@@ -99,9 +134,13 @@ function activate(context) {
      */
     function createDiagnostic(document, range, match, matchedValue) {
         var lineText = document.lineAt(range.start).text;
-        var content = util.getContent(lineText, match);
+        // match.index is document-relative; getContent expects a line-relative index
+        var content = util.getContent(lineText, { 0: match[0], index: range.start.character });
         if (content.length > 160) {
             content = content.substring(0, 160).trim() + '...';
+        }
+        if (!content) {
+            content = matchedValue || match[0];
         }
         var severity = assembledData[matchedValue]?.diagnosticSeverity;
         if (severity !== null && severity !== undefined) {
@@ -116,7 +155,7 @@ function activate(context) {
         }
 
         // the function isFileNameOk checks for the include and exclude settings
-        if (!util.isFileNameOk(activeEditor.document.fileName)) {
+        if (!util.isFileNameOk(activeEditor.document.uri, settings)) {
             if (decorationTypes) {
                 Object.keys(decorationTypes).forEach(v => {
                     activeEditor.setDecorations(decorationTypes[v], []);
@@ -191,9 +230,10 @@ function activate(context) {
 
     /**
      * Loads settings, (re)creates decoration types, and builds the search regex pattern.
-     * @param {vscode.WorkspaceConfiguration} settings - todohighlight configuration
+     * @param {vscode.Uri|undefined} resourceUri - Document URI for scoped settings
      */
-    function init(settings) {
+    function init(resourceUri) {
+        settings = util.getEffectiveConfiguration(resourceUri);
         const customDefaultStyle = settings.get('defaultStyle');
         keywordsPattern = settings.get('keywordsPattern');
         isCaseSensitive = settings.get('isCaseSensitive', true);

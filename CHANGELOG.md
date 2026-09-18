@@ -1,14 +1,24 @@
 # Change Log
 To update to the latest version, please use VSCode's own Extensions user interface.
 
+## 2.2.0 - 2026-06-30
+- added workspace config file support (issue #89). Place `todohighlight.json` in the workspace root, or set `todohighlight.configFile` to a custom path. Config file values override the same keys in VS Code `settings.json`; both sources remain available. Config files are watched and reloaded automatically.
+- fix: config watch logs now say `(found)` or `(not found yet)` instead of implying a missing file already exists; configured paths are watched even before the file is created.
+- fix: `.jsonc` config files (and `.json` files with comments/trailing commas) are now parsed correctly instead of failing with a JSON syntax error.
+- fix: stop spamming the config log on every editor change; reuse loaded settings for include/exclude checks.
+- fix: multi-root workspaces and `.code-workspace` files now resolve `todohighlight.configFile` by searching all workspace roots.
+
 ## 2.1.0 - 2026-06-30
 - security: pin `brace-expansion` overrides to patched 1.1.16 / 2.1.3 / 5.0.8 (Dependabot #67 and related CVE-2026-13149 / CVE-2026-14257 alerts).
 - security: pin `fast-uri` override to 3.1.4 (Dependabot #70 / CVE-2026-16221).
 - security: linkify-it / markdown-it / xml2js Dependabot alerts #66, #68, #64, #12 addressed by removal of `vsce` (and its transitive deps) from dependencies - no longer in the lockfile.
 - security: pin `js-yaml` override to 4.3.0 (Dependabot #73 / CVE-2026-59869).
 - security: pin `serialize-javascript` override to 7.0.7 (Dependabot #50 / GHSA-5c6j-r48x-rmvq and #61 / CVE-2026-34043).
-Fix issues identified by @Cursor:
-- getAssembledData: regex.push(v.regex.pattern || text) and if (regex.length) so default keyword merging works correctly
+Fix issues identified by @Cursor, including:
+- multi-root scopes not supported
+- sometimes further matches on a line after the first were ignored
+- reset before each decoration scan so highlights update reliably on re-runs
+<!-- - getAssembledData: regex.push(v.regex.pattern || text) and if (regex.length) so default keyword merging works correctly
 - searchAnnotations: findFiles errors now call callback(err) so the search does not hang
 - window.processing: set to false when search completes or on error (was incorrectly true)
 - searchAnnotationInFile: uses file.uri.fsPath instead of substring(7); finds all matches per line via a global regex loop
@@ -18,7 +28,7 @@ Fix issues identified by @Cursor:
 - Excluded files: clears decorations and diagnostics when isFileNameOk returns false
 - decorationStyleFromKeyword: strips text, wholeWord, regex, diagnosticSeverity before creating decoration types
 - Regex flags: built once with 'g' or 'gi' instead of double new RegExp
-- pattern.lastIndex = 0: reset before each decoration scan so highlights update reliably on re-runs
+- pattern.lastIndex = 0: reset before each decoration scan so highlights update reliably on re-runs -->
 
 ## 2.0.9 - 2026-06-30
 - added whole-word matching (issue #104). Set the new `todohighlight.wholeWordMatch` setting to `true` to only highlight plain-text keywords when they appear as whole words (e.g. so `BUG:` no longer matches the `BUG:` inside `DEBUG:`). It can also be controlled per keyword via the new `wholeWord` property, which overrides the global setting. Keywords that use a custom `regex` are not affected.

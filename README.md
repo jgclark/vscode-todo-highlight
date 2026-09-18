@@ -34,8 +34,29 @@ The [source code is available on GitHub](https://github.com/jgclark/vscode-todo-
 ### Top-level Configuration
 `TODO:` and `FIXME:` are built-in keywords. To add or change keywords and other settings, <kbd>command</kbd> + <kbd>,</kbd> (or on Windows / Linux: File -> Preferences -> User Settings) to open the VSCode file `settings.json`.
 
+Alternatively, you can keep settings in a **workspace config file** at the project root. The extension auto-detects `.todohighlight.json` or `.todohighlight.jsonc`, or you can point to a custom file with `todohighlight.configFile`. Keys in the config file override the same keys in `settings.json`; both sources work together. Example `.todohighlight.json`:
+
+```jsonc
+{
+    "keywords": [
+        "TODO:",
+        "FIXME:",
+        {
+            "text": "HACK:",
+            "color": "#fff",
+            "backgroundColor": "#9b59b6"
+        }
+    ],
+    "include": ["**/*.js", "**/*.ts", "**/*.md"],
+    "wholeWordMatch": true
+}
+```
+
+For `.js` config files, export a plain object: `module.exports = { keywords: [...] }`.
+
 |                                 | type    | default                                                                                                                                                                                                      | description                                                                                                                                                                                                                                                                                                                                                                                      |
 | ------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| todohighlight.configFile        | string  | (empty)                                                                                                                                                                                                      | Path to a workspace config file (relative to the workspace root). When empty, auto-detects `.todohighlight.json`, or `.todohighlight.jsonc`. File values override matching keys in `settings.json`.                                                                                                                                                                            |
 | todohighlight.enableDiagnostics | boolean | false    | Enable creating diagnostic entries for open files in the problems view. Default is false.                                                                                                                                                                             |
 | todohighlight.isEnable          | boolean | true                                                                                                                                                                                                         | Toggle the highlight, default is true.                                                                                                                                                                                                                                                                                                                                                           |
 | todohighlight.isCaseSensitive   | boolean | true                                                                                                                                                                                                         | Whether the keywords are case sensitive or not.                                                                                                                                                                                                                                                                                                                                                  |
