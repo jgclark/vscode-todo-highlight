@@ -4,6 +4,7 @@ To update to the latest version, please use VSCode's own Extensions user interfa
 ## 2.2.1 - 2026-09-18
 - security: bump `fast-uri` override to 3.1.6 (Dependabot #85 / CVE-2026-76172).
 - security: bump `js-yaml` override to 4.3.2 (Dependabot #80 / GHSA-5p4m-2wfm-xmqj and #87 / CVE-2026-84375).
+- security: bump `brace-expansion` overrides to 1.1.18 / 2.1.4 / 5.0.9 (Dependabot #75 / CVE-2026-14257 and #78 / CVE-2026-69152).
 
 ## 2.2.0 - 2026-06-30
 - added workspace config file support (issue #89). Place `todohighlight.json` in the workspace root, or set `todohighlight.configFile` to a custom path. Config file values override the same keys in VS Code `settings.json`; both sources remain available. Config files are watched and reloaded automatically.
