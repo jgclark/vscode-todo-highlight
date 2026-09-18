@@ -1,6 +1,10 @@
 # Change Log
 To update to the latest version, please use VSCode's own Extensions user interface.
 
+## 2.2.2 - 2026-09-18
+- Change: Problems panel message is now the note text only; the keyword goes in the Code column (issue #103).
+- Change: Problems panel entries now show source `TODO Highlight` (and the keyword as the code) instead of `-` (issue #102).
+
 ## 2.2.1 - 2026-09-18
 - security: bump `fast-uri` override to 3.1.6 (Dependabot #85 / CVE-2026-76172).
 - security: bump `js-yaml` override to 4.3.2 (Dependabot #80 / GHSA-5p4m-2wfm-xmqj and #87 / CVE-2026-84375).

@@ -136,15 +136,29 @@ function activate(context) {
         var lineText = document.lineAt(range.start).text;
         // match.index is document-relative; getContent expects a line-relative index
         var content = util.getContent(lineText, { 0: match[0], index: range.start.character });
+        var matchedText = match[0] || '';
+        // Code = keyword; Message = remainder only (issue #103)
+        if (matchedText && content.length >= matchedText.length) {
+            const head = content.substring(0, matchedText.length);
+            if (head.toLowerCase() === matchedText.toLowerCase()) {
+                content = content.substring(matchedText.length).trim();
+            }
+        }
         if (content.length > 160) {
             content = content.substring(0, 160).trim() + '...';
         }
         if (!content) {
-            content = matchedValue || match[0];
+            content = matchedValue || matchedText;
         }
         var severity = assembledData[matchedValue]?.diagnosticSeverity;
         if (severity !== null && severity !== undefined) {
-            return new vscode.Diagnostic(range, content, severity);
+            const diagnostic = new vscode.Diagnostic(range, content, severity);
+            // Problems panel "Source" column; without this it shows as "-" (issue #102)
+            diagnostic.source = 'TODO Highlight';
+            if (matchedValue || matchedText) {
+                diagnostic.code = matchedValue || matchedText;
+            }
+            return diagnostic;
         }
     }
 
