@@ -1,6 +1,9 @@
 # Change Log
 To update to the latest version, please use VSCode's own Extensions user interface.
 
+## 2.2.1 - 2026-09-18
+- security: bump `fast-uri` override to 3.1.6 (Dependabot #85 / CVE-2026-76172).
+
 ## 2.2.0 - 2026-06-30
 - added workspace config file support (issue #89). Place `todohighlight.json` in the workspace root, or set `todohighlight.configFile` to a custom path. Config file values override the same keys in VS Code `settings.json`; both sources remain available. Config files are watched and reloaded automatically.
 - fix: config watch logs now say `(found)` or `(not found yet)` instead of implying a missing file already exists; configured paths are watched even before the file is created.
