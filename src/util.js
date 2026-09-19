@@ -26,6 +26,12 @@ const CONFIG_KEYS = [
 const configFileCache = {};
 
 var logChannel = null;
+var outputDecorationTypes = {};
+var lastOutputDecorationState = null;
+var outputDecorationRetryTimer = null;
+var outputVisibilityListener = null;
+var ANNOTATIONS_OUTPUT_CHANNEL_NAME = 'TodoHighlight';
+var LINES_PER_ANNOTATION = 3;
 
 /**
  * Creates the log output channel and registers it for disposal.
@@ -36,6 +42,27 @@ function initLogChannel(context) {
         logChannel = window.createOutputChannel('TODO Highlight v2');
         context.subscriptions.push(logChannel);
     }
+    ensureOutputVisibilityListener(context);
+}
+
+/**
+ * Re-applies annotation colours when the TodoHighlight output editor becomes visible.
+ * @param {vscode.ExtensionContext} context - Extension activation context
+ */
+function ensureOutputVisibilityListener(context) {
+    if (outputVisibilityListener) {
+        return;
+    }
+    outputVisibilityListener = window.onDidChangeVisibleTextEditors(function () {
+        if (lastOutputDecorationState) {
+            applyOutputChannelDecorations(
+                lastOutputDecorationState.data,
+                lastOutputDecorationState.styleContext,
+                lastOutputDecorationState.rangesByKey
+            );
+        }
+    });
+    context.subscriptions.push(outputVisibilityListener);
 }
 
 /**
@@ -630,7 +657,8 @@ function searchAnnotationInFile(file, annotations, annotationList, regexp) {
                 lineNum: line,
                 fileName: locationInfo.absPath,
                 startCol: locationInfo.startCol,
-                endCol: locationInfo.endCol
+                endCol: locationInfo.endCol,
+                matchedText: match[0]
             };
             annotationList.push(annotation);
             annotations[filePath].push(annotation);
@@ -662,12 +690,326 @@ function annotationsFound(err, annotations, annotationList) {
 }
 
 /**
- * Renders annotation search results in the output channel with clickable file links.
+ * Strips keyword fields that are not valid DecorationRenderOptions for the output list.
+ * Whole-line highlighting is disabled so only the keyword itself is coloured.
+ * @param {object} keywordConfig - Merged keyword configuration
+ * @returns {object} Style properties safe for createTextEditorDecorationType
+ */
+function outputStyleFromKeyword(keywordConfig) {
+    const style = Object.assign({}, keywordConfig);
+    delete style.text;
+    delete style.wholeWord;
+    delete style.regex;
+    delete style.diagnosticSeverity;
+    delete style.overviewRulerColor;
+    delete style.overviewRulerLane;
+    style.isWholeLine = false;
+    return style;
+}
+
+/**
+ * Whether a style has any visible colouring for the output list.
+ * @param {object} style - DecorationRenderOptions-like object
+ * @returns {boolean}
+ */
+function hasVisibleOutputStyle(style) {
+    return !!(style && (style.color || style.backgroundColor || style.border || style.borderColor));
+}
+
+/**
+ * Builds a keyword -> style map from the current effective settings.
+ * @param {{get: function(string, *=): *}} settings - Effective configuration
+ * @returns {{styleMap: object, isCaseSensitive: boolean, keywordsPattern: string}}
+ */
+function getOutputStyleContext(settings) {
+    const isCaseSensitive = settings.get('isCaseSensitive', true);
+    const keywordsPattern = settings.get('keywordsPattern') || '';
+    const customDefaultStyle = settings.get('defaultStyle') || {};
+
+    if (keywordsPattern.trim()) {
+        return {
+            styleMap: {
+                '*': Object.assign({}, DEFAULT_STYLE, customDefaultStyle)
+            },
+            isCaseSensitive: isCaseSensitive,
+            keywordsPattern: keywordsPattern
+        };
+    }
+
+    return {
+        styleMap: getAssembledData(settings.get('keywords'), customDefaultStyle, isCaseSensitive),
+        isCaseSensitive: isCaseSensitive,
+        keywordsPattern: ''
+    };
+}
+
+/**
+ * Resolves which style-map key applies to a matched annotation label.
+ * @param {string} matchedText - Text matched by the search regex
+ * @param {string} label - Full annotation label (starts at the match)
+ * @param {object} styleMap - Keyword style map
+ * @param {boolean} isCaseSensitive - Case-sensitivity setting
+ * @param {string} keywordsPattern - keywordsPattern setting, if any
+ * @returns {string|null} Key in styleMap, or null
+ */
+function resolveOutputStyleKey(matchedText, label, styleMap, isCaseSensitive, keywordsPattern) {
+    if (keywordsPattern && keywordsPattern.trim()) {
+        return '*';
+    }
+
+    const lookupExact = function (text) {
+        if (!text) return null;
+        if (styleMap[text]) return text;
+        if (!isCaseSensitive) {
+            const upper = text.toUpperCase();
+            if (styleMap[upper]) return upper;
+            return Object.keys(styleMap).find(function (k) {
+                return k.toUpperCase() === upper;
+            }) || null;
+        }
+        return null;
+    };
+
+    const exact = lookupExact(matchedText);
+    if (exact) return exact;
+
+    // Regex keywords: style key is `text`, but the match string may differ — use longest label prefix
+    const keys = Object.keys(styleMap).sort(function (a, b) {
+        return b.length - a.length;
+    });
+    const labelCmp = isCaseSensitive ? label : label.toUpperCase();
+    for (let i = 0; i < keys.length; i++) {
+        const key = keys[i];
+        const keyCmp = isCaseSensitive ? key : key.toUpperCase();
+        if (labelCmp.startsWith(keyCmp)) {
+            return key;
+        }
+    }
+
+    return null;
+}
+
+/**
+ * Infers matched keyword text from a label when it was not stored (older searches).
+ * @param {string} label - Annotation label
+ * @param {object} styleMap - Keyword style map
+ * @param {boolean} isCaseSensitive - Case-sensitivity setting
+ * @param {string} keywordsPattern - keywordsPattern setting, if any
+ * @returns {string}
+ */
+function inferMatchedText(label, styleMap, isCaseSensitive, keywordsPattern) {
+    if (!label) return '';
+    if (keywordsPattern && keywordsPattern.trim()) {
+        // Best effort: first whitespace-delimited token
+        const token = label.match(/^\S+/);
+        return token ? token[0] : label;
+    }
+
+    const keys = Object.keys(styleMap).sort(function (a, b) {
+        return b.length - a.length;
+    });
+    const labelCmp = isCaseSensitive ? label : label.toUpperCase();
+    for (let i = 0; i < keys.length; i++) {
+        const key = keys[i];
+        const keyCmp = isCaseSensitive ? key : key.toUpperCase();
+        if (labelCmp.startsWith(keyCmp)) {
+            return label.substring(0, key.length);
+        }
+    }
+    return '';
+}
+
+/**
+ * Finds the visible text editor for the annotations output channel.
+ * @returns {vscode.TextEditor|undefined}
+ */
+function findAnnotationsOutputEditor() {
+    return window.visibleTextEditors.find(function (editor) {
+        if (editor.document.uri.scheme !== 'output') {
+            return false;
+        }
+        const haystack = editor.document.uri.toString() + ' ' + (editor.document.fileName || '');
+        return haystack.indexOf(ANNOTATIONS_OUTPUT_CHANNEL_NAME) !== -1;
+    });
+}
+
+/**
+ * Disposes decoration types previously applied to the annotations output channel.
+ */
+function disposeOutputDecorations() {
+    Object.keys(outputDecorationTypes).forEach(function (key) {
+        outputDecorationTypes[key].dispose();
+    });
+    outputDecorationTypes = {};
+}
+
+/**
+ * Counts annotation label lines in the output document (tab-prefixed, non-empty).
+ * @param {vscode.TextDocument} doc - Output channel document
+ * @returns {number}
+ */
+function countAnnotationLabelLines(doc) {
+    let count = 0;
+    for (let line = 0; line < doc.lineCount; line++) {
+        const text = doc.lineAt(line).text;
+        if (text.startsWith('\t') && text.length > 1) {
+            count++;
+        }
+    }
+    return count;
+}
+
+/**
+ * Builds decoration ranges by scanning the visible output document for annotation labels.
+ * Prefers live document positions over precomputed line numbers (output buffering can differ).
+ * @param {vscode.TextEditor} editor - Annotations output editor
+ * @param {object[]} data - Annotation list used to render the channel
+ * @param {{styleMap: object, isCaseSensitive: boolean, keywordsPattern: string}} styleContext
+ * @returns {object} Map of style key to vscode.Range[]
+ */
+function buildOutputRangesFromEditor(editor, data, styleContext) {
+    const rangesByKey = {};
+    const doc = editor.document;
+    let annotationIndex = 0;
+
+    for (let line = 0; line < doc.lineCount && annotationIndex < data.length; line++) {
+        const text = doc.lineAt(line).text;
+        if (!text.startsWith('\t') || text.length <= 1) {
+            continue;
+        }
+
+        const v = data[annotationIndex];
+        annotationIndex++;
+
+        const label = text.substring(1);
+        const matchedText = v.matchedText || inferMatchedText(
+            label,
+            styleContext.styleMap,
+            styleContext.isCaseSensitive,
+            styleContext.keywordsPattern
+        );
+        const styleKey = resolveOutputStyleKey(
+            matchedText,
+            label,
+            styleContext.styleMap,
+            styleContext.isCaseSensitive,
+            styleContext.keywordsPattern
+        );
+
+        if (!matchedText || !styleKey || !styleContext.styleMap[styleKey]) {
+            continue;
+        }
+
+        // Highlight the matched keyword where it appears on the label line
+        const keywordStart = label.indexOf(matchedText);
+        const startCol = 1 + (keywordStart >= 0 ? keywordStart : 0);
+        const endCol = startCol + matchedText.length;
+        if (!rangesByKey[styleKey]) {
+            rangesByKey[styleKey] = [];
+        }
+        rangesByKey[styleKey].push(new vscode.Range(line, startCol, line, endCol));
+    }
+
+    return rangesByKey;
+}
+
+/**
+ * Applies keyword colour decorations to the annotations output editor.
+ * @param {object[]} data - Annotation list
+ * @param {{styleMap: object, isCaseSensitive: boolean, keywordsPattern: string}} styleContext
+ * @param {object} [fallbackRangesByKey] - Precomputed ranges if document scan finds nothing
+ * @returns {boolean} True if decorations were applied (or the editor is ready with nothing to colour)
+ */
+function applyOutputChannelDecorations(data, styleContext, fallbackRangesByKey) {
+    const editor = findAnnotationsOutputEditor();
+    if (!editor) {
+        return false;
+    }
+
+    const labelLineCount = countAnnotationLabelLines(editor.document);
+    // Wait until output content has finished buffering into the editor document
+    if (labelLineCount < data.length && editor.document.lineCount < data.length * LINES_PER_ANNOTATION) {
+        return false;
+    }
+
+    disposeOutputDecorations();
+
+    let rangesByKey = {};
+    if (labelLineCount >= data.length) {
+        rangesByKey = buildOutputRangesFromEditor(editor, data, styleContext);
+    }
+    if (!Object.keys(rangesByKey).length && fallbackRangesByKey) {
+        rangesByKey = fallbackRangesByKey;
+    }
+
+    Object.keys(rangesByKey).forEach(function (key) {
+        const keywordStyle = styleContext.styleMap[key];
+        if (!keywordStyle) return;
+
+        const renderOptions = outputStyleFromKeyword(keywordStyle);
+        if (!hasVisibleOutputStyle(renderOptions)) {
+            return;
+        }
+
+        outputDecorationTypes[key] = window.createTextEditorDecorationType(renderOptions);
+        editor.setDecorations(outputDecorationTypes[key], rangesByKey[key]);
+    });
+
+    return true;
+}
+
+/**
+ * Schedules decoration application, retrying briefly until the output editor is visible.
+ * @param {object[]} data - Annotation list
+ * @param {{styleMap: object, isCaseSensitive: boolean, keywordsPattern: string}} styleContext
+ * @param {object} rangesByKey - Precomputed fallback ranges
+ */
+function scheduleOutputDecorations(data, styleContext, rangesByKey) {
+    lastOutputDecorationState = {
+        data: data,
+        styleContext: styleContext,
+        rangesByKey: rangesByKey
+    };
+
+    if (outputDecorationRetryTimer) {
+        clearInterval(outputDecorationRetryTimer);
+        outputDecorationRetryTimer = null;
+    }
+
+    const tryApply = function () {
+        return applyOutputChannelDecorations(
+            lastOutputDecorationState.data,
+            lastOutputDecorationState.styleContext,
+            lastOutputDecorationState.rangesByKey
+        );
+    };
+
+    if (tryApply()) {
+        return;
+    }
+
+    let attempts = 0;
+    outputDecorationRetryTimer = setInterval(function () {
+        attempts++;
+        if (tryApply() || attempts >= 20) {
+            clearInterval(outputDecorationRetryTimer);
+            outputDecorationRetryTimer = null;
+        }
+    }, 50);
+}
+
+/**
+ * Renders annotation search results in the output channel with clickable file links
+ * and keyword colours matching the editor highlight styles (issue #98).
  * @param {object[]} data - Annotation objects with uri, label, lineNum, startCol
  */
 function showOutputChannel(data) {
-    if (!window.outputChannel) return;
+    if (!window.outputChannel) {
+        window.outputChannel = window.createOutputChannel(ANNOTATIONS_OUTPUT_CHANNEL_NAME);
+    }
     window.outputChannel.clear();
+    disposeOutputDecorations();
+    lastOutputDecorationState = null;
 
     if (data.length === 0) {
         window.showInformationMessage('No results. (Not included file types and individual files are not searched.)');
@@ -678,6 +1020,8 @@ function showOutputChannel(data) {
     const settings = getEffectiveConfiguration(activeUri);
     const toggleURI = settings.get('toggleURI', false);
     const platform = os.platform();
+    const styleContext = getOutputStyleContext(settings);
+    const rangesByKey = {};
 
     data.forEach(function (v, i) {
         // due to an issue of vscode(https://github.com/Microsoft/vscode/issues/586), in order to make file path clickable within the output channel,the file path differs from platform
@@ -696,9 +1040,35 @@ function showOutputChannel(data) {
             patternType = +!patternType;
         }
         window.outputChannel.appendLine(patterns[patternType]);
-        window.outputChannel.appendLine('\t' + v.label + '\n');
+        window.outputChannel.appendLine('\t' + v.label);
+        window.outputChannel.appendLine('');
+
+        const matchedText = v.matchedText || inferMatchedText(
+            v.label,
+            styleContext.styleMap,
+            styleContext.isCaseSensitive,
+            styleContext.keywordsPattern
+        );
+        const styleKey = resolveOutputStyleKey(
+            matchedText,
+            v.label,
+            styleContext.styleMap,
+            styleContext.isCaseSensitive,
+            styleContext.keywordsPattern
+        );
+
+        if (matchedText && styleKey && styleContext.styleMap[styleKey]) {
+            const labelLine = i * LINES_PER_ANNOTATION + 1;
+            const startCol = 1; // after leading tab
+            const endCol = startCol + matchedText.length;
+            if (!rangesByKey[styleKey]) {
+                rangesByKey[styleKey] = [];
+            }
+            rangesByKey[styleKey].push(new vscode.Range(labelLine, startCol, labelLine, endCol));
+        }
     });
     window.outputChannel.show();
+    scheduleOutputDecorations(data, styleContext, rangesByKey);
 }
 
 /**
