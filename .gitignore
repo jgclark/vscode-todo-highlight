@@ -1,5 +1,5 @@
 .DS_Store
-HOWTO-publish.md
+HOWTO-publish.secrets
 .vscode-test-web/**/*.*
 .vscode/**/*.*
 .history/**/*.*
