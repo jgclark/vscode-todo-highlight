@@ -9,7 +9,7 @@
 		"keyword",
 		"annotation"
 	],
-	"version": "2.2.3",
+	"version": "2.2.5",
 	"publisher": "jgclark",
 	"license": "MIT",
 	"icon": "assets/icon.png",
@@ -51,23 +51,18 @@
 			"description": "License: MIT"
 		},
 		{
-			"url": "https://travis-ci.org/jgclark/vscode-todo-highlight.svg?branch=master",
-			"href": "https://travis-ci.org/jgclark/vscode-todo-highlight",
-			"description": "Build Status"
-		},
-		{
-			"url": "https://vsmarketplacebadges.dev/version-short/jgclark.vscode-todo-highlight",
-			"href": "https://vsmarketplacebadges.dev/version-short/jgclark.vscode-todo-highlight.png",
+			"url": "https://vsmarketplacebadges.dev/version-short/jgclark.vscode-todo-highlight.png",
+			"href": "https://marketplace.visualstudio.com/items?itemName=jgclark.vscode-todo-highlight",
 			"description": "Version"
 		},
 		{
-			"url": "https://vsmarketplacebadges.dev/installs-short/jgclark.vscode-todo-highlight",
-			"href": "https://vsmarketplacebadges.dev/installs-short/jgclark.vscode-todo-highlight.png",
+			"url": "https://vsmarketplacebadges.dev/installs-short/jgclark.vscode-todo-highlight.png",
+			"href": "https://marketplace.visualstudio.com/items?itemName=jgclark.vscode-todo-highlight",
 			"description": "Installs"
 		},
 		{
-			"url": "https://vsmarketplacebadges.dev/rating-star/jgclark.vscode-todo-highlight",
-			"href": "https://vsmarketplacebadges.dev/rating-star/jgclark.vscode-todo-highlight.png",
+			"url": "https://vsmarketplacebadges.dev/rating-star/jgclark.vscode-todo-highlight.png",
+			"href": "https://marketplace.visualstudio.com/items?itemName=jgclark.vscode-todo-highlight",
 			"description": "Ratings"
 		}
 	],

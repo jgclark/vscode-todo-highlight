@@ -1,6 +1,12 @@
 # Change Log
 To update to the latest version, please use VSCode's own Extensions user interface.
 
+## 2.2.5 - 2026-09-22
+- Add secrets file to .vscodeignore as well as .gitignore.
+
+## 2.2.4 - 2026-09-22
+- Fixed broken badge link in description
+
 ## 2.2.3 - 2026-09-19
 - Enhancement: List Annotations output panel now colours keywords using the same styles as the editor (issue #98).
 
