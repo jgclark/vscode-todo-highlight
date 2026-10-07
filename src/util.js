@@ -115,8 +115,11 @@ function logError(message, err) {
  * @param {{ folderPath: string, target: string, exists: boolean }} options
  */
 function logConfigWatch({ folderPath, target, exists }) {
+    if (!exists && !isDebugLogEnabled()) {
+        return;
+    }
     const status = exists ? 'found' : 'not found yet';
-    log(`todohighlight: watching for config at ${target} in ${folderPath} (${status})`);
+    log(`todohighlight: [${folderPath}] watching for config at ${target} (${status})`);
 }
 
 var defaultIcon = '$(checklist)';
@@ -428,7 +431,7 @@ function getEffectiveConfiguration(resourceUri) {
             try {
                 fileConfig = loadConfigFromPath(configPath);
                 configFileCache[cacheKey] = { path: configPath, config: fileConfig };
-                log(`todohighlight: config loaded from ${configPath}`);
+                log(`todohighlight: using config file ${configPath}`);
             } catch (err) {
                 logError(`todohighlight: failed to load config file ${configPath}`, err);
                 configFileCache[cacheKey] = { path: configPath, config: null };
@@ -530,6 +533,10 @@ function watchConfigFiles(context, onConfigChange) {
             watcher.onDidDelete(reload);
             watchers.push(watcher);
         });
+
+        if (isDebugLogEnabled() && workspace.workspaceFolders.length > 1) {
+            log(`todohighlight: config watch setup complete (${workspace.workspaceFolders.length} workspace folder(s))`);
+        }
     }
 
     refreshWatchers();

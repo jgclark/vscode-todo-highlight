@@ -3,6 +3,7 @@ To update to the latest version, please use VSCode's own Extensions user interfa
 
 ## 2.2.5 - 2026-09-22
 - Add secrets file to .vscodeignore as well as .gitignore.
+- fix: config startup logs name the workspace folder, and only report `(not found yet)` when debug logging is on, so a missing file in one root no longer looks like it contradicts a loaded config in another.
 
 ## 2.2.4 - 2026-09-22
 - Fixed broken badge link in description
