@@ -73,7 +73,7 @@ For `.js` config files, export a plain object: `module.exports = { keywords: [..
 ### Configuration for each Keyword
 You can override the look by customizing the detailed settings for each **Keyword** in `"todohighlight.keywords"` (and similarly the defaults in `"todohighlight.defaultStyle"`). The available keys and values are:
 - "text": string: without a defined regex pattern this is the string that will be matched
-- "regex": { pattern: "..." } a regex pattern for what will be matched
+- "regex": { pattern: "..." } a regex pattern for what will be matched. The **entire match** is highlighted (there is no way to paint only a capturing subgroup). To highlight a span *inside* delimiters (e.g. the text between `{…}` but not the braces), make the match itself that span with lookbehind/lookahead — see the examples below. (Nested capturing groups `(...)` are converted to non-capturing `(?:...)` internally so they do not break style attribution across keywords; use them only to structure the pattern.)
 - "diagnosticSeverity": controls whether to show a "none", <!--"hint", -->"information" or "error" marker in the overview ruler for each instance of this keyword. Appropriate ones will also be shown in the PROBLEMS panel.
 - "color": colour name (e.g. "green") or other colour code (e.g. "rgba(255,120,0,50)")
 - "backgroundColor": as for `color` above. Note: setting the last parameter to zero (alpha channel) disables the background colour.
@@ -141,7 +141,9 @@ An example of a custom configuration, showing a range of the different features:
         {
             "text": "TODO(string):", // with a regex pattern defined, this setting isn't used, but is useful as a name for this section
             "regex": {
-                "pattern": "(?<=^|\"|\\s)TODO(\\(\\w+\\))?:" // this allows for TODO: or TODO(Bob): etc.
+                // Optional "(Name)" after TODO. Prefer (?:…) for groups used only for structure;
+                // plain (…) works the same for matching because it is converted to non-capturing.
+                "pattern": "(?<=^|\"|\\s)TODO(?:\\(\\w+\\))?:"
             },
             "diagnosticSeverity": "error",
             "color": "red",
@@ -165,10 +167,25 @@ An example of a custom configuration, showing a range of the different features:
             },
             "isWholeLine": false
         },
+        {
+            // Highlight only the text between single braces, not the braces themselves.
+            // Lookbehind/lookahead constrain the match; they are not part of the highlighted span.
+            // Capturing the inner text as ( … ) would NOT limit the highlight — the full match is always used.
+            "text": "brace-content",
+            "regex": {
+                "pattern": "(?<=(?<!\\{)\\{)[^{}]+(?=\\}(?!\\}))"
+            },
+            "color": "black",
+            "backgroundColor": "rgba(255,150,0,0.3)",
+            "border": "none",
+            "diagnosticSeverity": "none"
+        },
     ],
 
-    "todohighlight.keywordsPattern": "TODO:|FIXME:|\\(([^\\)]+)\\)", //highlight `TODO:`,`FIXME:` or content between parentheses
-    // NOTE: remember to escape the backslash if there's any in your regexp (using \\\\ instead of single backslash)"
+    // keywordsPattern: one regex for all matches (ignores todohighlight.keywords). The full match is highlighted;
+    // a capturing group does not limit the span. For text inside parentheses only, use lookarounds instead, e.g. (?<=\\()[^\\)]+(?=\\))
+    "todohighlight.keywordsPattern": "TODO:|FIXME:|(?<=\\()[^\\)]+(?=\\))",
+    // NOTE: remember to escape the backslash if there's any in your regexp (i.e. use double-backslash instead of single backslash)"
 
     "todohighlight.defaultStyle": {
         "color": "red",

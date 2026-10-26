@@ -4,6 +4,7 @@ To update to the latest version, please use VSCode's own Extensions user interfa
 ## 2.2.6 - 2026-10-26
 - fix: auto-detect also finds undotted `todohighlight.json` / `todohighlight.jsonc` (in addition to `.todohighlight.json` / `.todohighlight.jsonc`), matching the v2.2.0 docs and common workspace filenames.
 - fix: `escapeRegExpGroups` now converts all nested capturing groups to non-capturing, so keyword regexes with inner `(...)` (e.g. READING) no longer shift style attribution for later keywords such as AV / ACTION.
+- docs: clarify that the full regex match is highlighted; use lookarounds (not capturing groups) to exclude delimiters from the span.
 - dev: Improve logging of what config is used. (Show this using "TODO-Highlight: Show config log" command.)
 
 ## 2.2.5 - 2026-09-22
