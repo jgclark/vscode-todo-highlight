@@ -1208,16 +1208,26 @@ function wholeWordPattern(pattern, keyword) {
 }
 
 /**
- * Converts capturing groups in a regex pattern to non-capturing groups (Node.js 10+).
+ * Converts capturing groups in a keyword's regex pattern to non-capturing groups.
+ *
+ * Why this is required: keywords are joined into one big alternation where each
+ * keyword is wrapped in a single capturing group, e.g. `(TODO:)|(FIXME:)|(…)`.
+ * After a match, `match.slice(1).indexOf(match[0])` picks which group fired, and
+ * that index is mapped to `Object.keys(decorationTypes)` to choose the style.
+ * Any nested capturing `(...)` inside a keyword pattern adds extra slots to
+ * `match`, so later keywords are attributed the wrong style (e.g. AV painted as
+ * ACTION, ACTION as Application). Converting nested groups to `(?:…)` keeps
+ * exactly one capturing group per keyword. Already-special groups are left
+ * alone: `(?:)`, `(?=)`, `(?!)`, `(?<=)`, `(?<!)`.
+ *
  * @param {string} s - Regex pattern string
  * @returns {string} Pattern with non-capturing groups
  */
 function escapeRegExpGroups(s) {
     // Lookbehind assertions ("(?<!abc) & (?<=abc)") supported from ECMAScript 2018 and onwards. Native in node.js 9 and up.
     if (parseFloat(process.version.replace('v', '')) > 9.0) {
-        let grpPattern = /(?<!\\)(\()([^?]\w*(?:\\+\w)*)(\))?/g;
-        // Make group non-capturing
-        return s.replace(grpPattern, '$1?:$2$3');
+        // Convert every capturing "(" that is not already a (?…) special group
+        return s.replace(/(?<!\\)\((?!\?)/g, '(?:');
     } else {
         return escapeRegExpGroupsLegacy(s);
     }
