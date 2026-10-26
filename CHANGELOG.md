@@ -3,6 +3,7 @@ To update to the latest version, please use VSCode's own Extensions user interfa
 
 ## 2.3.1 - 2026-10-26
 - security: bump `brace-expansion` overrides to 1.1.21 / 2.1.7 / 5.0.12 (GHSA-6j4f-fj2g-mc7p, GHSA-qhr7-859c-m2p7, GHSA-q2hr-2g5m-vwhr).
+- security: bump `fast-uri` override to 3.1.9 (GHSA-qw65-cvwx-89v3, GHSA-58mr-gqgx-xq4g, GHSA-hrr3-gc8f-f4qj, GHSA-w74x-v6f9-j3xg, and related).
 
 ## 2.3.0 - 2026-10-26
 - change: Keyword search regex now uses the multiline flag so `^` / `$` match per line (e.g. full-line `^\^.*\^$` rubrics), not match per file.

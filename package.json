@@ -350,10 +350,14 @@
 		"Where used: 1.x via production minimatch@3 (shipped in the extension); 2.x via mocha (dev); 5.x via eslint/minimatch@10 (dev)."
 	],
 	"_fastUriOverrideNotes": [
-		"Security pin for fast-uri (Dependabot alerts #70 / CVE-2026-16221 / GHSA-v2hh-gcrm-f6hx and #85 / CVE-2026-76172 / GHSA-jqff-g426-hqxp).",
+		"Security pin for fast-uri (Dependabot alerts #70 / CVE-2026-16221 / GHSA-v2hh-gcrm-f6hx and #85 / CVE-2026-76172 / GHSA-jqff-g426-hqxp, plus later npm audit GHSAs).",
 		"#70: Host confusion via literal backslash in URI authority; can desync allowlist checks vs Node WHATWG URL/fetch. Vulnerable: >=3.0.0 <=3.1.3. Patched: 3.1.4.",
 		"#85: Host confusion via percent-encoded scheme normalization (unescape of scheme; can introduce //host). Vulnerable: >=3.0.0 <3.1.6. Patched: 3.1.6 (also 4.1.3 / 2.4.5 for other majors - not used here).",
-		"Pin to 3.1.6 to cover both. Where used: webpack → schema-utils → ajv → fast-uri (devDependency build path only; not shipped in the VSIX).",
+		"GHSA-qw65-cvwx-89v3: Authority injection via unvalidated port in serialize. Vulnerable: >=3.0.0 <3.1.7. Patched: 3.1.7.",
+		"GHSA-58mr-gqgx-xq4g: Host confusion via unclosed bracket in URI authority. Vulnerable: =3.1.6. Patched: 3.1.7+.",
+		"GHSA-hrr3-gc8f-f4qj: Inconsistent host case normalization via percent-encoded octets. Vulnerable: >=3.0.0 <3.1.8. Patched: 3.1.8.",
+		"GHSA-w74x-v6f9-j3xg / GHSA-xhq7-xmqj-769h / GHSA-wjr9-j795-jxcr / GHSA-333x-w4r6-6crp: scheme spoofing, path equivalence, WHATWG host canonicalization, suffix-reference scheme injection. Patched: 3.1.9.",
+		"Pin to 3.1.9 to cover all of the above on the 3.x line (ajv still resolves 3.x; do not force 4.x). Where used: webpack → schema-utils → ajv → fast-uri (devDependency build path only; not shipped in the VSIX).",
 		"Pin via overrides so the reason stays documented in package.json."
 	],
 	"_linkifyItSecurityNotes": [
@@ -381,7 +385,7 @@
 		"brace-expansion@1": "1.1.21",
 		"brace-expansion@2": "2.1.7",
 		"brace-expansion@5": "5.0.12",
-		"fast-uri": "3.1.6",
+		"fast-uri": "3.1.9",
 		"js-yaml": "4.3.2",
 		"serialize-javascript": "7.0.7"
 	}
