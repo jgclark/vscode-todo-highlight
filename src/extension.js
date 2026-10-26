@@ -313,7 +313,8 @@ function activate(context) {
             }).join('|');
         }
 
-        const patternFlags = isCaseSensitive ? 'g' : 'gi';
+        // Include `m` so `^` / `$` in keyword regexes are per-line (e.g. `^\^.*\^$` for a full-line rubric)
+        const patternFlags = isCaseSensitive ? 'gm' : 'gim';
         pattern = new RegExp(pattern, patternFlags);
     }
 

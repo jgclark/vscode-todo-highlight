@@ -73,19 +73,22 @@ For `.js` config files, export a plain object: `module.exports = { keywords: [..
 ### Configuration for each Keyword
 You can override the look by customizing the detailed settings for each **Keyword** in `"todohighlight.keywords"` (and similarly the defaults in `"todohighlight.defaultStyle"`). The available keys and values are:
 - "text": string: without a defined regex pattern this is the string that will be matched
-- "regex": { pattern: "..." } a regex pattern for what will be matched. The **entire match** is highlighted (there is no way to paint only a capturing subgroup). To highlight a span *inside* delimiters (e.g. the text between `{…}` but not the braces), make the match itself that span with lookbehind/lookahead — see the examples below. (Nested capturing groups `(...)` are converted to non-capturing `(?:...)` internally so they do not break style attribution across keywords; use them only to structure the pattern.)
+- "regex": { pattern: "..." } a regex pattern for what will be matched. Note:
+  - The **entire match** is highlighted: there is no way to paint only a `(...)` capturing subgroup. If you include them, they are converted to non-capturing `(?:...)` internally so they do not break style attribution across keywords; use them only to structure the pattern.
+  - To highlight a span *inside* delimiters (e.g. the text between `{…}` but not the braces), make the match itself that span with lookbehind/lookahead — see the examples below.
+  - Patterns are compiled with the multiline flag, so `^` and `$` match the start and end of each **line** (e.g. `^\\^.*\\^$` for a full-line `^rubric^`). 
 - "diagnosticSeverity": controls whether to show a "none", <!--"hint", -->"information" or "error" marker in the overview ruler for each instance of this keyword. Appropriate ones will also be shown in the PROBLEMS panel.
-- "color": colour name (e.g. "green") or other colour code (e.g. "rgba(255,120,0,50)")
+- "color": colour name (e.g. `green`) or other colour code (e.g. `rgba(255,120,0,0.5)`)
 - "backgroundColor": as for `color` above. Note: setting the last parameter to zero (alpha channel) disables the background colour.
-- "border": CSS string to put a border around the text (e.g. "1px solid red" or "none")
-- "borderRadius": e.g. "2px"
-- "outline": CSS string to put an outline outside the border (e.g. "1px solid red" or "none") -- _Note: this is unlikely to be useful, as it will likely overlap with text around the highlight_
+- "border": CSS string to put a border around the text (e.g. `1px solid red` or `none`)
+- "borderRadius": e.g. `2px`
+- "outline": CSS string to put an outline outside the border (e.g. `1px solid red` or `none`) -- _Note: this is unlikely to be useful, as it will likely overlap with text around the highlight._
 - "overviewRulerColor": colour name or colour code to use for this line in the overview ruler
-- "cursor": e.g. "pointer"
-- "isWholeLine": whether the whole line is to be highlighted, or just the matching characters
+- "cursor": e.g. `pointer`
+- "isWholeLine": whether the whole line is to be highlighted (`true`), or just the matching characters (`false`).
 - "wholeWord": whether this keyword is only highlighted when it appears as a whole word (e.g. `BUG:` will not match inside `DEBUG:`). Overrides the global `todohighlight.wholeWordMatch` setting for this keyword. Has no effect when a custom `regex` is supplied.
-- "before": { "contentText": "..." } -- adds text before the highlight. However, note that VSCode may well decide to add another copy of this when moving between open files, so it may have limited value.
-- "after": { "contentText": "..." } -- similarly, adds text after the highlight.
+- "before": `{ "contentText": "..." }` -- adds text before the highlight. However, note that VSCode may well decide to add another copy of this when moving between open files, so it may have limited value.
+- "after": `{ "contentText": "..." }` -- similarly, adds text after the highlight.
 
 The values used in color, borders, spacing etc. are what VSCode borrows from CSS. For more details see [this VSCode documentation](https://code.visualstudio.com/api/references/vscode-api#DecorationRenderOptions)).  Note that this is not the exactly same as CSS.
 
@@ -177,6 +180,17 @@ An example of a custom configuration, showing a range of the different features:
             },
             "color": "black",
             "backgroundColor": "rgba(255,150,0,0.3)",
+            "border": "none",
+            "diagnosticSeverity": "none"
+        },
+        {
+            // Full-line match: ^ and $ are per-line because the search regex uses the multiline flag.
+            "text": "Rubric",
+            "regex": {
+                "pattern": "^\\^.*\\^$"
+            },
+            "color": "rgba(200,80,80,0.6)",
+            "backgroundColor": "transparent",
             "border": "none",
             "diagnosticSeverity": "none"
         },

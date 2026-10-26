@@ -37,8 +37,8 @@ npx vscode-test-web --browserType=webkit --extensionDevelopmentPath=. .
 
 Publishing to the actual VSC Marketplace requires an ['Azure organisation'](https://docs.microsoft.com/en-gb/azure/devops/organizations/accounts/create-organization?view=azure-devops), and a Personal Access Token.  And then some configuration:
 ```
-vsce login [publisher name]
-vsce publish [version number]
+vsce login [publisher name]    <-- may not be needed; try the publish step first
+vsce publish [version number, e.g. 2.3.0]
 ```
 
 Then check at https://marketplace.visualstudio.com/manage/publishers/jgclark, because it can have an error without it being clear on the CLI.
