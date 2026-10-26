@@ -1,6 +1,9 @@
 # Change Log
 To update to the latest version, please use VSCode's own Extensions user interface.
 
+## 2.3.1 - 2026-10-26
+- security: bump `brace-expansion` overrides to 1.1.21 / 2.1.7 / 5.0.12 (GHSA-6j4f-fj2g-mc7p, GHSA-qhr7-859c-m2p7, GHSA-q2hr-2g5m-vwhr).
+
 ## 2.3.0 - 2026-10-26
 - change: Keyword search regex now uses the multiline flag so `^` / `$` match per line (e.g. full-line `^\^.*\^$` rubrics), not match per file.
 - fix: auto-detect also finds undotted `todohighlight.json` / `todohighlight.jsonc` (in addition to `.todohighlight.json` / `.todohighlight.jsonc`), matching the v2.2.0 docs and common workspace filenames.
