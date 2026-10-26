@@ -7,7 +7,13 @@ var jsonc = require('jsonc-parser');
 var window = vscode.window;
 var workspace = vscode.workspace;
 
-const CONFIG_FILE_NAMES = ['.todohighlight.json', '.todohighlight.jsonc'];
+// Dotted names first, then undotted (CHANGELOG / common user filenames)
+const CONFIG_FILE_NAMES = [
+    '.todohighlight.jsonc',
+    '.todohighlight.json',
+    'todohighlight.jsonc',
+    'todohighlight.json'
+];
 
 const CONFIG_KEYS = [
     'isEnable',
@@ -413,6 +419,31 @@ function invalidateConfigCache(cacheKey) {
 }
 
 /**
+ * Counts keyword definitions loaded from a file config.
+ * @param {object|null} fileConfig - Normalized config from disk
+ * @returns {number}
+ */
+function countKeywordDefinitions(fileConfig) {
+    if (!fileConfig || !Array.isArray(fileConfig.keywords)) {
+        return 0;
+    }
+    return fileConfig.keywords.length;
+}
+
+/**
+ * Logs that no workspace config file was found and VS Code settings will be used.
+ * @param {string} configFileSetting - User-specified configFile setting
+ */
+function logConfigNotFound(configFileSetting) {
+    const customFile = configFileSetting && configFileSetting.trim();
+    if (customFile) {
+        log(`todohighlight: no config file found for configFile="${customFile}" (searched workspace roots); using VS Code settings only`);
+        return;
+    }
+    log(`todohighlight: no workspace config file found (looked for ${CONFIG_FILE_NAMES.join(', ')}); using VS Code settings only`);
+}
+
+/**
  * Merges VS Code settings with an optional workspace config file (file wins on conflict).
  * @param {vscode.Uri|undefined} resourceUri - Document URI for scoped settings
  * @returns {{get: function(string, *=): *, vscode: vscode.WorkspaceConfiguration, fileConfig: object|null, configPath: string|null}}
@@ -431,7 +462,8 @@ function getEffectiveConfiguration(resourceUri) {
             try {
                 fileConfig = loadConfigFromPath(configPath);
                 configFileCache[cacheKey] = { path: configPath, config: fileConfig };
-                log(`todohighlight: using config file ${configPath}`);
+                const keywordDefs = countKeywordDefinitions(fileConfig);
+                log(`todohighlight: config loaded from ${configPath} (${keywordDefs} keyword definition${keywordDefs === 1 ? '' : 's'})`);
             } catch (err) {
                 logError(`todohighlight: failed to load config file ${configPath}`, err);
                 configFileCache[cacheKey] = { path: configPath, config: null };
@@ -441,6 +473,7 @@ function getEffectiveConfiguration(resourceUri) {
         fileConfig = configFileCache[cacheKey].config;
     } else {
         configFileCache[cacheKey] = { path: null, config: null };
+        logConfigNotFound(configFileSetting);
     }
 
     return {
@@ -465,7 +498,7 @@ function getEffectiveConfiguration(resourceUri) {
  */
 function watchConfigFiles(context, onConfigChange) {
     let watchers = [];
-    const AUTO_DETECT_GLOB = '{.todohighlight.json,.todohighlight.jsonc}';
+    const AUTO_DETECT_GLOB = `{${CONFIG_FILE_NAMES.join(',')}}`;
 
     function refreshWatchers() {
         watchers.forEach((watcher) => watcher.dispose());

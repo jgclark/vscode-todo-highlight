@@ -9,7 +9,7 @@
 		"keyword",
 		"annotation"
 	],
-	"version": "2.2.5",
+	"version": "2.2.6",
 	"publisher": "jgclark",
 	"license": "MIT",
 	"icon": "assets/icon.png",
@@ -91,7 +91,7 @@
 				"todohighlight.configFile": {
 					"type": "string",
 					"default": "",
-					"markdownDescription": "Path to a workspace config file (relative to the workspace root). When empty, the extension auto-detects `.todohighlight.json` or `.todohighlight.jsonc` in the workspace root. Values from the config file override the same keys in VS Code `settings.json`. Both sources remain available."
+					"markdownDescription": "Path to a workspace config file (relative to the workspace root). When empty, the extension auto-detects `.todohighlight.jsonc`, `.todohighlight.json`, `todohighlight.jsonc`, or `todohighlight.json` in the workspace root (dotted names preferred). Values from the config file override the same keys in VS Code `settings.json`. Both sources remain available."
 				},
 				"todohighlight.debugLog": {
 					"type": "boolean",

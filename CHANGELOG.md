@@ -1,6 +1,10 @@
 # Change Log
 To update to the latest version, please use VSCode's own Extensions user interface.
 
+## 2.2.6 - 2026-10-26
+- fix: auto-detect also finds undotted `todohighlight.json` / `todohighlight.jsonc` (in addition to `.todohighlight.json` / `.todohighlight.jsonc`), matching the v2.2.0 docs and common workspace filenames.
+- dev: Improve logging of what config is used. (Show this using "TODO-Highlight: Show config log" command.)
+
 ## 2.2.5 - 2026-09-22
 - Add secrets file to .vscodeignore as well as .gitignore.
 - fix: config startup logs name the workspace folder, and only report `(not found yet)` when debug logging is on, so a missing file in one root no longer looks like it contradicts a loaded config in another.
@@ -21,7 +25,7 @@ To update to the latest version, please use VSCode's own Extensions user interfa
 - security: bump `brace-expansion` overrides to 1.1.18 / 2.1.4 / 5.0.9 (Dependabot #75 / CVE-2026-14257 and #78 / CVE-2026-69152).
 
 ## 2.2.0 - 2026-06-30
-- added workspace config file support (issue #89). Place `todohighlight.json` in the workspace root, or set `todohighlight.configFile` to a custom path. Config file values override the same keys in VS Code `settings.json`; both sources remain available. Config files are watched and reloaded automatically.
+- added workspace config file support (issue #89). Place `.todohighlight.json(c)` or `todohighlight.json(c)` in the workspace root, or set `todohighlight.configFile` to a custom path. Config file values override the same keys in VS Code `settings.json`; both sources remain available. Config files are watched and reloaded automatically.
 - fix: config watch logs now say `(found)` or `(not found yet)` instead of implying a missing file already exists; configured paths are watched even before the file is created.
 - fix: `.jsonc` config files (and `.json` files with comments/trailing commas) are now parsed correctly instead of failing with a JSON syntax error.
 - fix: stop spamming the config log on every editor change; reuse loaded settings for include/exclude checks.
