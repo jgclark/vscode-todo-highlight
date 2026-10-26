@@ -374,19 +374,26 @@
 		"#87: maxTotalMergeKeys does not limit CPU use for empty merge sources. Vulnerable: >=4.0.0 <4.3.2. Patched: 4.3.2 (also 3.15.2 for 3.x - not used here).",
 		"Pin to 4.3.2 to cover all three. Where used: mocha → js-yaml (devDependency / test runner only; not shipped in the VSIX)."
 	],
+	"_diffOverrideNotes": [
+		"Security pin for diff / jsdiff (npm audit GHSA-73rr-hh4g-fpgx).",
+		"DoS in parsePatch / applyPatch via crafted patch input. Vulnerable: >=5.0.0 <5.2.2. Patched: 5.2.2 (also later majors - not required here).",
+		"Pin to 5.2.2. Where used: mocha → diff (devDependency / test runner only; not shipped in the VSIX)."
+	],
 	"_serializeJavascriptOverrideNotes": [
-		"Security pin for serialize-javascript (Dependabot alerts #50 / GHSA-5c6j-r48x-rmvq and #61 / CVE-2026-34043).",
+		"Security pin for serialize-javascript (Dependabot alerts #50 / GHSA-5c6j-r48x-rmvq and #61 / CVE-2026-34043, plus GHSA-m5mm-p8h7-m29v).",
 		"#50: RCE via unsanitized RegExp.flags and Date.prototype.toISOString() when serialized output is evaluated. Vulnerable <=7.0.2; patched 7.0.3.",
 		"#61: CPU exhaustion DoS via crafted array-like objects. Vulnerable >=5.0.0 <7.0.5; patched 7.0.5.",
-		"Pin to 7.0.7 to cover both. Mocha declares ^6.0.2; 7.x keeps the same default-export serialize() API.",
+		"GHSA-m5mm-p8h7-m29v: XSS via unescaped </script at the end of a serialized function body. Vulnerable: <7.1.3. Patched: 7.1.3.",
+		"Pin to 7.1.4 to cover all three. Mocha declares ^6.0.2; 7.x keeps the same default-export serialize() API (override avoids a mocha major bump).",
 		"Where used: mocha → serialize-javascript (devDependency / test runner only; not shipped in the VSIX)."
 	],
 	"overrides": {
 		"brace-expansion@1": "1.1.21",
 		"brace-expansion@2": "2.1.7",
 		"brace-expansion@5": "5.0.12",
+		"diff": "5.2.2",
 		"fast-uri": "3.1.9",
 		"js-yaml": "4.3.2",
-		"serialize-javascript": "7.0.7"
+		"serialize-javascript": "7.1.4"
 	}
 }
